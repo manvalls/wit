@@ -11,6 +11,11 @@ func List(deltas ...Delta) Delta {
 	return Delta{&deltaSlice{deltas}}
 }
 
+// Root applies given deltas to the root of the document
+func Root(deltas ...Delta) Delta {
+	return Delta{&deltaRoot{List(deltas...)}}
+}
+
 // Run runs the given function under the given context, returning a delta
 func Run(parentCtx context.Context, callback func(context.Context) Delta) Delta {
 	ctx, cancel := context.WithCancel(parentCtx)

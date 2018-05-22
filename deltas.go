@@ -23,6 +23,10 @@ type deltaChannel struct {
 
 // - Selectors
 
+type deltaRoot struct {
+	delta Delta
+}
+
 type deltaSelector struct {
 	selector Selector
 	delta    Delta
