@@ -173,3 +173,23 @@ func InsertBeforeFrom(selector Selector) Delta {
 func InsertCloneBeforeFrom(selector Selector) Delta {
 	return Delta{&deltaInsertCloneBeforeFrom{selector}}
 }
+
+// JS loads the provided script synchronously
+func JS(url string) Delta {
+	return Delta{&deltaJS{url}}
+}
+
+// AsyncJS loads the provided script asynchronously
+func AsyncJS(url string) Delta {
+	return Delta{&deltaAsyncJS{url}}
+}
+
+// CSS loads the provided script synchronously
+func CSS(url string) Delta {
+	return Delta{&deltaCSS{url}}
+}
+
+// AsyncCSS loads the provided script asynchronously
+func AsyncCSS(url string) Delta {
+	return Delta{&deltaAsyncCSS{url}}
+}
