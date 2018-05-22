@@ -97,10 +97,6 @@ type deltaRmClass struct {
 	class string
 }
 
-type deltaToggleClass struct {
-	class string
-}
-
 // - Placement
 
 type deltaReplaceWith struct {

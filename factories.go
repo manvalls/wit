@@ -121,8 +121,3 @@ func AddClass(class string) Delta {
 func RmClass(class string) Delta {
 	return Delta{&deltaRmClass{class}}
 }
-
-// ToggleClass adds the provided class to the matching elements
-func ToggleClass(class string) Delta {
-	return Delta{&deltaToggleClass{class}}
-}
