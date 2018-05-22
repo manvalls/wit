@@ -41,7 +41,7 @@ func RunChannel(parentCtx context.Context, callback func(context.Context, chan<-
 }
 
 // Remove removes from the document matching elements
-var Remove = Delta{&removeDelta{}}
+var Remove = Delta{&deltaRemove{}}
 
 // HTML sets the inner HTML of the matching elements
 func HTML(html string) Delta {

@@ -35,7 +35,7 @@ type deltaSelectorAll struct {
 
 // - Removers
 
-type removeDelta struct{}
+type deltaRemove struct{}
 
 // - Content modifiers
 
@@ -161,13 +161,20 @@ type deltaAsyncCSS struct {
 	url string
 }
 
-// Flow control
+// - External scripts
+
+type deltaCall struct {
+	path      []string
+	arguments map[string]string
+}
+
+// - Flow control
 
 type deltaJump struct {
 	delta Delta
 }
 
-// Low level request changes
+// - Low level request changes
 
 type deltaRedirect struct {
 	location string
