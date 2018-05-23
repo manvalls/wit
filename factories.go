@@ -198,3 +198,38 @@ func CSS(url string) Delta {
 func AsyncCSS(url string) Delta {
 	return Delta{&deltaAsyncCSS{url}}
 }
+
+// Call calls a JavaScript function with provided parameters, when it becomes available
+func Call(path []string, args map[string]string) Delta {
+	return Delta{&deltaCall{path, args}}
+}
+
+// Jump discards all deltas present and future and applies the given delta to the document
+func Jump(delta Delta) Delta {
+	return Delta{&deltaJump{delta}}
+}
+
+// Redirect discards future deltas and redirects to a different URL
+func Redirect(location string, code int) Delta {
+	return Delta{&deltaRedirect{location, code}}
+}
+
+// AddHeaders adds some headers to the response
+func AddHeaders(headers map[string]string) Delta {
+	return Delta{&deltaAddHeaders{headers}}
+}
+
+// SetHeaders sets the headers of the response
+func SetHeaders(headers map[string]string) Delta {
+	return Delta{&deltaSetHeaders{headers}}
+}
+
+// RmHeaders removes haders from the response
+func RmHeaders(headers []string) Delta {
+	return Delta{&deltaRmHeaders{headers}}
+}
+
+// Answer discards future deltas and sends the provided raw response
+func Answer(reader io.ReadCloser) Delta {
+	return Delta{&deltaAnswer{reader}}
+}

@@ -194,5 +194,5 @@ type deltaRmHeaders struct {
 }
 
 type deltaAnswer struct {
-	reader io.Reader
+	reader io.ReadCloser
 }
