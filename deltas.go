@@ -47,6 +47,11 @@ type deltaHTML struct {
 	reader io.Reader
 }
 
+type deltaHTMLPipe struct {
+	reader *io.PipeReader
+	cancel context.CancelFunc
+}
+
 type deltaText struct {
 	test string
 }

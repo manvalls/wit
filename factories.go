@@ -37,12 +37,22 @@ func Run(parentCtx context.Context, callback func(context.Context) Delta) Delta 
 func RunChannel(parentCtx context.Context, callback func(context.Context, chan<- Delta) Delta) Delta {
 	ctx, cancel := context.WithCancel(parentCtx)
 	channel := make(chan Delta)
+	go callback(ctx, channel)
+	return Delta{&deltaChannel{channel, cancel}}
+}
 
+// RunHTML runs the given function under the given context and writer, returning a delta
+func RunHTML(parentCtx context.Context, callback func(*io.PipeWriter)) Delta {
+	reader, writer := io.Pipe()
+	ctx, cancel := context.WithCancel(parentCtx)
+
+	go callback(writer)
 	go func() {
-		callback(ctx, channel)
+		<-ctx.Done()
+		reader.Close()
 	}()
 
-	return Delta{&deltaChannel{channel, cancel}}
+	return Delta{&deltaHTMLPipe{reader, cancel}}
 }
 
 // Remove removes from the document matching elements
