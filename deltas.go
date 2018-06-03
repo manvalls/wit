@@ -112,48 +112,6 @@ type deltaRmClass struct {
 	class string
 }
 
-// - Placement
-
-type deltaReplaceWith struct {
-	selector Selector
-}
-
-type deltaReplaceWithClone struct {
-	selector Selector
-}
-
-type deltaAppendFrom struct {
-	selector Selector
-}
-
-type deltaAppendCloneFrom struct {
-	selector Selector
-}
-
-type deltaPrependFrom struct {
-	selector Selector
-}
-
-type deltaPrependCloneFrom struct {
-	selector Selector
-}
-
-type deltaInsertAfterFrom struct {
-	selector Selector
-}
-
-type deltaInsertCloneAfterFrom struct {
-	selector Selector
-}
-
-type deltaInsertBeforeFrom struct {
-	selector Selector
-}
-
-type deltaInsertCloneBeforeFrom struct {
-	selector Selector
-}
-
 // - Loaders
 
 type deltaJS struct {

@@ -73,7 +73,7 @@ func HTMLReader(reader io.Reader) Delta {
 
 // HTMLFile sets the inner HTML of the matching elements
 func HTMLFile(file string) Delta {
-	return Delta{&deltaFile{file}}
+	return Delta{&deltaHTMLFile{file}}
 }
 
 // Text sets the inner text of the matching elements
@@ -143,58 +143,6 @@ func AddClass(class string) Delta {
 // RmClass adds the provided class to the matching elements
 func RmClass(class string) Delta {
 	return Delta{&deltaRmClass{class}}
-}
-
-// ReplaceWith replaces matching elements with that matching the provided selector
-func ReplaceWith(selector Selector) Delta {
-	return Delta{&deltaReplaceWith{selector}}
-}
-
-// ReplaceWithClone replaces matching elements with a clone of that matching the provided selector
-func ReplaceWithClone(selector Selector) Delta {
-	return Delta{&deltaReplaceWithClone{selector}}
-}
-
-// AppendFrom appends the element matching the provided selector to matching elements
-func AppendFrom(selector Selector) Delta {
-	return Delta{&deltaAppendFrom{selector}}
-}
-
-// AppendCloneFrom appends a clone of the element matching the provided selector to matching elements
-func AppendCloneFrom(selector Selector) Delta {
-	return Delta{&deltaAppendCloneFrom{selector}}
-}
-
-// PrependFrom prepends the element matching the provided selector to matching elements
-func PrependFrom(selector Selector) Delta {
-	return Delta{&deltaPrependFrom{selector}}
-}
-
-// PrependCloneFrom prepends a clone of the element matching the provided selector to matching elements
-func PrependCloneFrom(selector Selector) Delta {
-	return Delta{&deltaPrependCloneFrom{selector}}
-}
-
-// InsertAfterFrom inserts the element matching the provided selector after matching elements
-func InsertAfterFrom(selector Selector) Delta {
-	return Delta{&deltaInsertAfterFrom{selector}}
-}
-
-// InsertCloneAfterFrom inserts a clone of the element matching the provided selector
-// after matching elements
-func InsertCloneAfterFrom(selector Selector) Delta {
-	return Delta{&deltaInsertCloneAfterFrom{selector}}
-}
-
-// InsertBeforeFrom inserts the element matching the provided selector before matching elements
-func InsertBeforeFrom(selector Selector) Delta {
-	return Delta{&deltaInsertBeforeFrom{selector}}
-}
-
-// InsertCloneBeforeFrom inserts a clone of the element matching the provided selector
-// before matching elements
-func InsertCloneBeforeFrom(selector Selector) Delta {
-	return Delta{&deltaInsertCloneBeforeFrom{selector}}
 }
 
 // JS loads the provided script synchronously
