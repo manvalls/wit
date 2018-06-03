@@ -41,6 +41,8 @@ type deltaSelectorAll struct {
 
 type deltaRemove struct{}
 
+type deltaClear struct{}
+
 // - Content modifiers
 
 type deltaHTML struct {
@@ -50,6 +52,10 @@ type deltaHTML struct {
 type deltaHTMLPipe struct {
 	reader *io.PipeReader
 	cancel context.CancelFunc
+}
+
+type deltaHTMLFile struct {
+	file string
 }
 
 type deltaText struct {

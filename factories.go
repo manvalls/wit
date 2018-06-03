@@ -58,6 +58,9 @@ func RunHTML(parentCtx context.Context, callback func(*io.PipeWriter)) Delta {
 // Remove removes from the document matching elements
 var Remove = Delta{&deltaRemove{}}
 
+// Clear empties matching elements
+var Clear = Delta{&deltaClear{}}
+
 // HTML sets the inner HTML of the matching elements
 func HTML(html string) Delta {
 	return Delta{&deltaHTML{strings.NewReader(html)}}
@@ -66,6 +69,11 @@ func HTML(html string) Delta {
 // HTMLReader sets the inner HTML of the matching elements
 func HTMLReader(reader io.Reader) Delta {
 	return Delta{&deltaHTML{reader}}
+}
+
+// HTMLFile sets the inner HTML of the matching elements
+func HTMLFile(file string) Delta {
+	return Delta{&deltaFile{file}}
 }
 
 // Text sets the inner text of the matching elements
