@@ -55,6 +55,9 @@ func RunHTML(parentCtx context.Context, callback func(*io.PipeWriter)) Delta {
 	return Delta{htmlPipeType, &deltaHTMLPipe{reader, cancel}}
 }
 
+// Nil represents an effectless delta
+var Nil = Delta{}
+
 // Remove removes from the document matching elements
 var Remove = Delta{removeType, &deltaRemove{}}
 
