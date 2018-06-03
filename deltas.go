@@ -7,7 +7,8 @@ import (
 
 // Delta represents a document change
 type Delta struct {
-	delta interface{}
+	typeID uint
+	delta  interface{}
 }
 
 // - Delta groups

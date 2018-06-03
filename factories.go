@@ -8,12 +8,12 @@ import (
 
 // List groups a list of deltas together
 func List(deltas ...Delta) Delta {
-	return Delta{&deltaSlice{deltas}}
+	return Delta{sliceType, &deltaSlice{deltas}}
 }
 
 // Root applies given deltas to the root of the document
 func Root(deltas ...Delta) Delta {
-	return Delta{&deltaRoot{List(deltas...)}}
+	return Delta{rootType, &deltaRoot{List(deltas...)}}
 }
 
 // Run runs the given function under the given context, returning a delta
@@ -30,7 +30,7 @@ func Run(parentCtx context.Context, callback func(context.Context) Delta) Delta 
 		close(channel)
 	}()
 
-	return Delta{&deltaChannel{channel, cancel}}
+	return Delta{channelType, &deltaChannel{channel, cancel}}
 }
 
 // RunChannel runs the given function under the given context and channel, returning a delta
@@ -38,7 +38,7 @@ func RunChannel(parentCtx context.Context, callback func(context.Context, chan<-
 	ctx, cancel := context.WithCancel(parentCtx)
 	channel := make(chan Delta)
 	go callback(ctx, channel)
-	return Delta{&deltaChannel{channel, cancel}}
+	return Delta{channelType, &deltaChannel{channel, cancel}}
 }
 
 // RunHTML runs the given function under the given context and writer, returning a delta
@@ -52,150 +52,150 @@ func RunHTML(parentCtx context.Context, callback func(*io.PipeWriter)) Delta {
 		reader.Close()
 	}()
 
-	return Delta{&deltaHTMLPipe{reader, cancel}}
+	return Delta{htmlPipeType, &deltaHTMLPipe{reader, cancel}}
 }
 
 // Remove removes from the document matching elements
-var Remove = Delta{&deltaRemove{}}
+var Remove = Delta{removeType, &deltaRemove{}}
 
 // Clear empties matching elements
-var Clear = Delta{&deltaClear{}}
+var Clear = Delta{clearType, &deltaClear{}}
 
 // HTML sets the inner HTML of the matching elements
 func HTML(html string) Delta {
-	return Delta{&deltaHTML{strings.NewReader(html)}}
+	return Delta{htmlType, &deltaHTML{strings.NewReader(html)}}
 }
 
 // HTMLReader sets the inner HTML of the matching elements
 func HTMLReader(reader io.Reader) Delta {
-	return Delta{&deltaHTML{reader}}
+	return Delta{htmlType, &deltaHTML{reader}}
 }
 
 // HTMLFile sets the inner HTML of the matching elements
 func HTMLFile(file string) Delta {
-	return Delta{&deltaHTMLFile{file}}
+	return Delta{htmlFileType, &deltaHTMLFile{file}}
 }
 
 // Text sets the inner text of the matching elements
 func Text(txt string) Delta {
-	return Delta{&deltaText{txt}}
+	return Delta{textType, &deltaText{txt}}
 }
 
 // Replace empties matching elements and applies the provided deltas to them
 func Replace(deltas ...Delta) Delta {
-	return Delta{&deltaReplace{List(deltas...)}}
+	return Delta{replaceType, &deltaReplace{List(deltas...)}}
 }
 
 // Append creates a fragment at the end of the matching elements and
 // applies the provided deltas to it
 func Append(deltas ...Delta) Delta {
-	return Delta{&deltaAppend{List(deltas...)}}
+	return Delta{appendType, &deltaAppend{List(deltas...)}}
 }
 
 // Prepend creates a fragment at the beginning of the matching elements and
 // applies the provided deltas to it
 func Prepend(deltas ...Delta) Delta {
-	return Delta{&deltaPrepend{List(deltas...)}}
+	return Delta{prependType, &deltaPrepend{List(deltas...)}}
 }
 
 // InsertAfter creates a fragment after the matching elements and
 // applies the provided deltas to it
 func InsertAfter(deltas ...Delta) Delta {
-	return Delta{&deltaInsertAfter{List(deltas...)}}
+	return Delta{insertAfterType, &deltaInsertAfter{List(deltas...)}}
 }
 
 // InsertBefore creates a fragment before the matching elements and
 // applies the provided deltas to it
 func InsertBefore(deltas ...Delta) Delta {
-	return Delta{&deltaInsertBefore{List(deltas...)}}
+	return Delta{insertBeforeType, &deltaInsertBefore{List(deltas...)}}
 }
 
 // AddAttr adds the provided attributes to the matching elements
 func AddAttr(attr map[string]string) Delta {
-	return Delta{&deltaAddAttr{attr}}
+	return Delta{addAttrType, &deltaAddAttr{attr}}
 }
 
 // SetAttr sets the attributes of the matching elements
 func SetAttr(attr map[string]string) Delta {
-	return Delta{&deltaSetAttr{attr}}
+	return Delta{setAttrType, &deltaSetAttr{attr}}
 }
 
 // RmAttr removes the provided attributes from the matching elements
 func RmAttr(attrs ...string) Delta {
-	return Delta{&deltaRmAttr{attrs}}
+	return Delta{rmAttrType, &deltaRmAttr{attrs}}
 }
 
 // AddStyles adds the provided styles to the matching elements
 func AddStyles(styles map[string]string) Delta {
-	return Delta{&deltaAddStyles{styles}}
+	return Delta{addStylesType, &deltaAddStyles{styles}}
 }
 
 // RmStyles removes the provided styles from the matching elements
 func RmStyles(styles ...string) Delta {
-	return Delta{&deltaRmStyles{styles}}
+	return Delta{rmStylesType, &deltaRmStyles{styles}}
 }
 
 // AddClass adds the provided class to the matching elements
 func AddClass(class string) Delta {
-	return Delta{&deltaAddClass{class}}
+	return Delta{addClassType, &deltaAddClass{class}}
 }
 
 // RmClass adds the provided class to the matching elements
 func RmClass(class string) Delta {
-	return Delta{&deltaRmClass{class}}
+	return Delta{rmClassType, &deltaRmClass{class}}
 }
 
 // JS loads the provided script synchronously
 func JS(url string) Delta {
-	return Delta{&deltaJS{url}}
+	return Delta{jsType, &deltaJS{url}}
 }
 
 // AsyncJS loads the provided script asynchronously
 func AsyncJS(url string) Delta {
-	return Delta{&deltaAsyncJS{url}}
+	return Delta{asyncJSType, &deltaAsyncJS{url}}
 }
 
 // CSS loads the provided script synchronously
 func CSS(url string) Delta {
-	return Delta{&deltaCSS{url}}
+	return Delta{cssType, &deltaCSS{url}}
 }
 
 // AsyncCSS loads the provided script asynchronously
 func AsyncCSS(url string) Delta {
-	return Delta{&deltaAsyncCSS{url}}
+	return Delta{asyncCSSType, &deltaAsyncCSS{url}}
 }
 
 // Call calls a JavaScript function with provided parameters, when it becomes available
 func Call(path []string, args map[string]string) Delta {
-	return Delta{&deltaCall{path, args}}
+	return Delta{callType, &deltaCall{path, args}}
 }
 
 // Jump discards all deltas present and future and applies the given delta to the document
 func Jump(delta Delta) Delta {
-	return Delta{&deltaJump{delta}}
+	return Delta{jumpType, &deltaJump{delta}}
 }
 
 // Redirect discards future deltas and redirects to a different URL
 func Redirect(location string, code int) Delta {
-	return Delta{&deltaRedirect{location, code}}
+	return Delta{redirectType, &deltaRedirect{location, code}}
 }
 
 // AddHeaders adds some headers to the response
 func AddHeaders(headers map[string]string) Delta {
-	return Delta{&deltaAddHeaders{headers}}
+	return Delta{addHeadersType, &deltaAddHeaders{headers}}
 }
 
 // SetHeaders sets the headers of the response
 func SetHeaders(headers map[string]string) Delta {
-	return Delta{&deltaSetHeaders{headers}}
+	return Delta{setHeadersType, &deltaSetHeaders{headers}}
 }
 
 // RmHeaders removes haders from the response
 func RmHeaders(headers []string) Delta {
-	return Delta{&deltaRmHeaders{headers}}
+	return Delta{rmHeadersType, &deltaRmHeaders{headers}}
 }
 
 // Answer discards future deltas and sends the provided raw response
 func Answer(reader io.ReadCloser) Delta {
-	return Delta{&deltaAnswer{reader}}
+	return Delta{answerType, &deltaAnswer{reader}}
 }
