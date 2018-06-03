@@ -84,6 +84,31 @@ func Text(txt string) Delta {
 	return Delta{textType, &deltaText{txt}}
 }
 
+// Parent applies provided deltas to the parent of matching elements
+func Parent(deltas ...Delta) Delta {
+	return Delta{parentType, &deltaParent{List(deltas...)}}
+}
+
+// FirstChild applies provided deltas to the first child of matching elements
+func FirstChild(deltas ...Delta) Delta {
+	return Delta{firstChildType, &deltaFirstChild{List(deltas...)}}
+}
+
+// LastChild applies provided deltas to the last child of matching elements
+func LastChild(deltas ...Delta) Delta {
+	return Delta{lastChildType, &deltaLastChild{List(deltas...)}}
+}
+
+// PrevSibling applies provided deltas to the previous sibling of matching elements
+func PrevSibling(deltas ...Delta) Delta {
+	return Delta{prevSiblingType, &deltaPrevSibling{List(deltas...)}}
+}
+
+// NextSibling applies provided deltas to the previous sibling of matching elements
+func NextSibling(deltas ...Delta) Delta {
+	return Delta{nextSiblingType, &deltaNextSibling{List(deltas...)}}
+}
+
 // Replace empties matching elements and applies the provided deltas to them
 func Replace(deltas ...Delta) Delta {
 	return Delta{replaceType, &deltaReplace{List(deltas...)}}

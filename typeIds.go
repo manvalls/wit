@@ -9,6 +9,11 @@ const (
 	rootType
 	selectorType
 	selectorAllType
+	parentType
+	firstChildType
+	lastChildType
+	prevSiblingType
+	nextSiblingType
 
 	removeType
 	clearType

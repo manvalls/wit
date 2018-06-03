@@ -38,6 +38,26 @@ type deltaSelectorAll struct {
 	delta    Delta
 }
 
+type deltaParent struct {
+	delta Delta
+}
+
+type deltaFirstChild struct {
+	delta Delta
+}
+
+type deltaLastChild struct {
+	delta Delta
+}
+
+type deltaPrevSibling struct {
+	delta Delta
+}
+
+type deltaNextSibling struct {
+	delta Delta
+}
+
 // - Removers
 
 type deltaRemove struct{}
