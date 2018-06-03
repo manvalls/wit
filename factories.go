@@ -109,7 +109,8 @@ func NextSibling(deltas ...Delta) Delta {
 	return Delta{nextSiblingType, &deltaNextSibling{List(deltas...)}}
 }
 
-// Replace empties matching elements and applies the provided deltas to them
+// Replace replaces matching elements with empty fragments and applies the
+// provided deltas to them
 func Replace(deltas ...Delta) Delta {
 	return Delta{replaceType, &deltaReplace{List(deltas...)}}
 }
