@@ -19,8 +19,6 @@ const (
 	clearType
 
 	htmlType
-	htmlPipeType
-	htmlFileType
 	textType
 	replaceType
 	appendType

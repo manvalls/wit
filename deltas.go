@@ -67,16 +67,7 @@ type deltaClear struct{}
 // - Content modifiers
 
 type deltaHTML struct {
-	reader io.Reader
-}
-
-type deltaHTMLPipe struct {
-	reader *io.PipeReader
-	cancel context.CancelFunc
-}
-
-type deltaHTMLFile struct {
-	file string
+	factory HTMLFactory
 }
 
 type deltaText struct {

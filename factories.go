@@ -3,7 +3,8 @@ package wit
 import (
 	"context"
 	"io"
-	"strings"
+
+	"golang.org/x/net/html"
 )
 
 // List groups a list of deltas together
@@ -41,20 +42,6 @@ func RunChannel(parentCtx context.Context, callback func(context.Context, chan<-
 	return Delta{channelType, &deltaChannel{channel, cancel}}
 }
 
-// RunHTML runs the given function under the given context and writer, returning a delta
-func RunHTML(parentCtx context.Context, callback func(*io.PipeWriter)) Delta {
-	reader, writer := io.Pipe()
-	ctx, cancel := context.WithCancel(parentCtx)
-
-	go callback(writer)
-	go func() {
-		<-ctx.Done()
-		reader.Close()
-	}()
-
-	return Delta{htmlPipeType, &deltaHTMLPipe{reader, cancel}}
-}
-
 // Nil represents an effectless delta
 var Nil = Delta{}
 
@@ -64,19 +51,15 @@ var Remove = Delta{removeType, &deltaRemove{}}
 // Clear empties matching elements
 var Clear = Delta{clearType, &deltaClear{}}
 
+// HTMLFactory builds HTML documents on demand
+type HTMLFactory interface {
+	HTML() io.Reader
+	Nodes() []*html.Node
+}
+
 // HTML sets the inner HTML of the matching elements
-func HTML(html string) Delta {
-	return Delta{htmlType, &deltaHTML{strings.NewReader(html)}}
-}
-
-// HTMLReader sets the inner HTML of the matching elements
-func HTMLReader(reader io.Reader) Delta {
-	return Delta{htmlType, &deltaHTML{reader}}
-}
-
-// HTMLFile sets the inner HTML of the matching elements
-func HTMLFile(file string) Delta {
-	return Delta{htmlFileType, &deltaHTMLFile{file}}
+func HTML(factory HTMLFactory) Delta {
+	return Delta{htmlType, &deltaHTML{factory}}
 }
 
 // Text sets the inner text of the matching elements
