@@ -54,6 +54,7 @@ const (
 
 	jumpType
 
+	statusType
 	redirectType
 	addHeadersType
 	setHeadersType

@@ -157,6 +157,10 @@ type deltaJump struct {
 
 // - Low level request changes
 
+type deltaStatus struct {
+	code int
+}
+
 type deltaRedirect struct {
 	location string
 	code     int

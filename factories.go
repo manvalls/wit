@@ -182,6 +182,11 @@ func Jump(delta Delta) Delta {
 	return Delta{jumpType, &deltaJump{delta}}
 }
 
+// Status sets the status code of the response
+func Status(statusCode int) Delta {
+	return Delta{statusType, &deltaStatus{statusCode}}
+}
+
 // Redirect discards future deltas and redirects to a different URL
 func Redirect(location string, code int) Delta {
 	return Delta{redirectType, &deltaRedirect{location, code}}
