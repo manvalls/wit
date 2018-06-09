@@ -127,18 +127,22 @@ type deltaRmClass struct {
 // - Loaders
 
 type deltaJS struct {
+	key string
 	url string
 }
 
 type deltaAsyncJS struct {
+	key string
 	url string
 }
 
 type deltaCSS struct {
+	key string
 	url string
 }
 
 type deltaAsyncCSS struct {
+	key string
 	url string
 }
 
