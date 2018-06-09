@@ -71,27 +71,27 @@ type deltaHTML struct {
 }
 
 type deltaText struct {
-	test string
+	text string
 }
 
 type deltaReplace struct {
-	delta Delta
+	factory HTMLFactory
 }
 
 type deltaAppend struct {
-	delta Delta
+	factory HTMLFactory
 }
 
 type deltaPrepend struct {
-	delta Delta
+	factory HTMLFactory
 }
 
 type deltaInsertAfter struct {
-	delta Delta
+	factory HTMLFactory
 }
 
 type deltaInsertBefore struct {
-	delta Delta
+	factory HTMLFactory
 }
 
 // - Attributes

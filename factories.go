@@ -92,34 +92,29 @@ func NextSibling(deltas ...Delta) Delta {
 	return Delta{nextSiblingType, &deltaNextSibling{List(deltas...)}}
 }
 
-// Replace replaces matching elements with empty fragments and applies the
-// provided deltas to them
-func Replace(deltas ...Delta) Delta {
-	return Delta{replaceType, &deltaReplace{List(deltas...)}}
+// Replace replaces matching elements with the provided HTML
+func Replace(html HTMLFactory) Delta {
+	return Delta{replaceType, &deltaReplace{html}}
 }
 
-// Append creates a fragment at the end of the matching elements and
-// applies the provided deltas to it
-func Append(deltas ...Delta) Delta {
-	return Delta{appendType, &deltaAppend{List(deltas...)}}
+// Append adds the provided HTML at the end of matching elements
+func Append(html HTMLFactory) Delta {
+	return Delta{appendType, &deltaAppend{html}}
 }
 
-// Prepend creates a fragment at the beginning of the matching elements and
-// applies the provided deltas to it
-func Prepend(deltas ...Delta) Delta {
-	return Delta{prependType, &deltaPrepend{List(deltas...)}}
+// Prepend adds the provided HTML at the beginning of matching elements
+func Prepend(html HTMLFactory) Delta {
+	return Delta{prependType, &deltaPrepend{html}}
 }
 
-// InsertAfter creates a fragment after the matching elements and
-// applies the provided deltas to it
-func InsertAfter(deltas ...Delta) Delta {
-	return Delta{insertAfterType, &deltaInsertAfter{List(deltas...)}}
+// InsertAfter inserts the provided HTML after matching elements
+func InsertAfter(html HTMLFactory) Delta {
+	return Delta{insertAfterType, &deltaInsertAfter{html}}
 }
 
-// InsertBefore creates a fragment before the matching elements and
-// applies the provided deltas to it
-func InsertBefore(deltas ...Delta) Delta {
-	return Delta{insertBeforeType, &deltaInsertBefore{List(deltas...)}}
+// InsertBefore inserts the provided HTML before matching elements
+func InsertBefore(html HTMLFactory) Delta {
+	return Delta{insertBeforeType, &deltaInsertBefore{html}}
 }
 
 // AddAttr adds the provided attributes to the matching elements
