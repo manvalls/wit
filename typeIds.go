@@ -53,6 +53,7 @@ const (
 	callType
 
 	jumpType
+	runSyncType
 
 	statusType
 	redirectType

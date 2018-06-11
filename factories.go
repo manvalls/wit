@@ -182,6 +182,11 @@ func Jump(delta Delta) Delta {
 	return Delta{jumpType, &deltaJump{delta}}
 }
 
+// RunSync runs the given function synchronously, applying returned delta
+func RunSync(handler func() Delta) Delta {
+	return Delta{runSyncType, &deltaRunSync{handler}}
+}
+
 // Status sets the status code of the response
 func Status(statusCode int) Delta {
 	return Delta{statusType, &deltaStatus{statusCode}}

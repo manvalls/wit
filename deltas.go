@@ -159,6 +159,10 @@ type deltaJump struct {
 	delta Delta
 }
 
+type deltaRunSync struct {
+	handler func() Delta
+}
+
 // - Low level request changes
 
 type deltaStatus struct {
