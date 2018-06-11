@@ -113,6 +113,10 @@ func applyDelta(root *html.Node, nodes []*html.Node, delta Delta) (newRoot *html
 
 		for _, node := range nodes {
 			m := node.FirstChild
+			for m != nil && m.Type != html.ElementNode {
+				m = m.NextSibling
+			}
+
 			if m != nil {
 				childNodes = append(childNodes, m)
 			}
@@ -128,6 +132,10 @@ func applyDelta(root *html.Node, nodes []*html.Node, delta Delta) (newRoot *html
 
 		for _, node := range nodes {
 			m := node.LastChild
+			for m != nil && m.Type != html.ElementNode {
+				m = m.PrevSibling
+			}
+
 			if m != nil {
 				childNodes = append(childNodes, m)
 			}
@@ -143,6 +151,10 @@ func applyDelta(root *html.Node, nodes []*html.Node, delta Delta) (newRoot *html
 
 		for _, node := range nodes {
 			m := node.PrevSibling
+			for m != nil && m.Type != html.ElementNode {
+				m = m.PrevSibling
+			}
+
 			if m != nil {
 				childNodes = append(childNodes, m)
 			}
@@ -157,7 +169,11 @@ func applyDelta(root *html.Node, nodes []*html.Node, delta Delta) (newRoot *html
 		childNodes := make([]*html.Node, 0, len(nodes))
 
 		for _, node := range nodes {
-			m := node.PrevSibling
+			m := node.NextSibling
+			for m != nil && m.Type != html.ElementNode {
+				m = m.NextSibling
+			}
+
 			if m != nil {
 				childNodes = append(childNodes, m)
 			}
@@ -179,12 +195,7 @@ func applyDelta(root *html.Node, nodes []*html.Node, delta Delta) (newRoot *html
 	case clearType:
 
 		for _, node := range nodes {
-			switch node.Type {
-			case html.CommentNode:
-				fallthrough
-			case html.TextNode:
-				node.Data = ""
-			default:
+			if node.Type == html.ElementNode {
 				for node.FirstChild != nil {
 					node.RemoveChild(node.FirstChild)
 				}
