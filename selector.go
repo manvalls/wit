@@ -1,5 +1,11 @@
 package wit
 
+import (
+	"sync"
+
+	"github.com/andybalholm/cascadia"
+)
+
 // Selector wraps a CSS selector
 type Selector struct {
 	*selectorInfo
@@ -7,7 +13,7 @@ type Selector struct {
 
 // S wraps a CSS selector in a Selector object
 func S(selector string) Selector {
-	return Selector{&selectorInfo{selector}}
+	return Selector{&selectorInfo{selector, sync.Mutex{}, nil}}
 }
 
 // One applies the given delta to the first matching element
@@ -29,5 +35,24 @@ func (s Selector) All(deltas ...Delta) Delta {
 }
 
 type selectorInfo struct {
-	selector string
+	selectorText string
+	sync.Mutex
+	cascadia.Selector
+}
+
+func (s *selectorInfo) selector() cascadia.Selector {
+	s.Lock()
+	defer s.Unlock()
+
+	if s.Selector != nil {
+		return s.Selector
+	}
+
+	selector, err := cascadia.Compile(s.selectorText)
+	if err != nil {
+		return nil
+	}
+
+	s.Selector = selector
+	return selector
 }
