@@ -34,17 +34,6 @@ const (
 	addClassType
 	rmClassType
 
-	replaceWithType
-	replaceWithCloneType
-	appendFromType
-	appendCloneFromType
-	prependFromType
-	prependCloneFromType
-	insertAfterFromType
-	insertCloneAfterFromType
-	insertBeforeFromType
-	insertCloneBeforeFromType
-
 	jsType
 	asyncJSType
 	cssType
