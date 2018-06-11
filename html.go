@@ -167,6 +167,30 @@ func applyDelta(root *html.Node, nodes []*html.Node, delta Delta) (newRoot *html
 			return applyDelta(root, childNodes, d.delta)
 		}
 
+	case removeType:
+
+		for _, node := range nodes {
+			parent := node.Parent
+			if parent != nil {
+				parent.RemoveChild(node)
+			}
+		}
+
+	case clearType:
+
+		for _, node := range nodes {
+			switch node.Type {
+			case html.CommentNode:
+				fallthrough
+			case html.TextNode:
+				node.Data = ""
+			default:
+				for node.FirstChild != nil {
+					node.RemoveChild(node.FirstChild)
+				}
+			}
+		}
+
 	}
 
 	return root, false
