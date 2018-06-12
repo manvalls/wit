@@ -248,7 +248,7 @@ func applyDelta(root *html.Node, nodes []*html.Node, delta Delta) (newRoot *html
 
 	case replaceType:
 
-		childNodes := delta.delta.(*deltaHTML).factory.Nodes()
+		childNodes := delta.delta.(*deltaReplace).factory.Nodes()
 		for _, node := range nodes {
 			if node.Type != html.ElementNode || node.Parent == nil {
 				continue
