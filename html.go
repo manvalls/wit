@@ -35,6 +35,8 @@ func applyDelta(root *html.Node, nodes []*html.Node, delta Delta) (newRoot *html
 			}
 		}
 
+		return root, discard
+
 	case channelType:
 		d := delta.delta.(*deltaChannel)
 
@@ -52,6 +54,8 @@ func applyDelta(root *html.Node, nodes []*html.Node, delta Delta) (newRoot *html
 				}
 			}
 		}
+
+		return root, discard
 
 	case rootType:
 		return applyDelta(root, []*html.Node{root}, delta.delta.(*deltaRoot).delta)
@@ -240,6 +244,26 @@ func applyDelta(root *html.Node, nodes []*html.Node, delta Delta) (newRoot *html
 				Type: html.TextNode,
 				Data: text,
 			})
+		}
+
+	case replaceType:
+
+		childNodes := delta.delta.(*deltaHTML).factory.Nodes()
+		for _, node := range nodes {
+			if node.Type != html.ElementNode || node.Parent == nil {
+				continue
+			}
+
+			children := childNodes
+			if len(nodes) > 1 {
+				children = util.Clone(children)
+			}
+
+			for _, child := range children {
+				node.Parent.InsertBefore(child, node)
+			}
+
+			node.Parent.RemoveChild(node)
 		}
 
 	}
