@@ -266,6 +266,49 @@ func applyDelta(root *html.Node, nodes []*html.Node, delta Delta) (newRoot *html
 			node.Parent.RemoveChild(node)
 		}
 
+	case appendType:
+
+		childNodes := delta.delta.(*deltaAppend).factory.Nodes()
+		for _, node := range nodes {
+			if node.Type != html.ElementNode {
+				continue
+			}
+
+			children := childNodes
+			if len(nodes) > 1 {
+				children = util.Clone(children)
+			}
+
+			for _, child := range children {
+				node.AppendChild(child)
+			}
+		}
+
+	case prependType:
+
+		childNodes := delta.delta.(*deltaPrepend).factory.Nodes()
+		for _, node := range nodes {
+			if node.Type != html.ElementNode {
+				continue
+			}
+
+			children := childNodes
+			if len(nodes) > 1 {
+				children = util.Clone(children)
+			}
+
+			if node.FirstChild != nil {
+				for _, child := range children {
+					node.InsertBefore(child, node.FirstChild)
+				}
+			} else {
+				for _, child := range children {
+					node.AppendChild(child)
+				}
+			}
+
+		}
+
 	}
 
 	return root, false
