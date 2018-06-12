@@ -202,6 +202,46 @@ func applyDelta(root *html.Node, nodes []*html.Node, delta Delta) (newRoot *html
 			}
 		}
 
+	case htmlType:
+
+		childNodes := delta.delta.(*deltaHTML).factory.Nodes()
+		for _, node := range nodes {
+			if node.Type != html.ElementNode {
+				continue
+			}
+
+			children := childNodes
+			if len(nodes) > 1 {
+				children = util.Clone(children)
+			}
+
+			for node.FirstChild != nil {
+				node.RemoveChild(node.FirstChild)
+			}
+
+			for _, child := range children {
+				node.AppendChild(child)
+			}
+		}
+
+	case textType:
+
+		text := delta.delta.(*deltaText).text
+		for _, node := range nodes {
+			if node.Type != html.ElementNode {
+				continue
+			}
+
+			for node.FirstChild != nil {
+				node.RemoveChild(node.FirstChild)
+			}
+
+			node.AppendChild(&html.Node{
+				Type: html.TextNode,
+				Data: text,
+			})
+		}
+
 	}
 
 	return root, false
