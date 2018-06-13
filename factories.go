@@ -197,6 +197,11 @@ func ClearKey(key string) Delta {
 	return Delta{clearKeyType, &deltaClearKey{key}}
 }
 
+// Defer applies the given deltas after applying the rest of them
+func Defer(deltas ...Delta) Delta {
+	return Delta{deferType, &deltaDefer{List(deltas...)}}
+}
+
 // Status sets the status code of the response
 func Status(statusCode int) Delta {
 	return Delta{statusType, &deltaStatus{statusCode}}

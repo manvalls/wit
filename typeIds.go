@@ -45,6 +45,7 @@ const (
 	runSyncType
 	withKeyType
 	clearKeyType
+	deferType
 
 	statusType
 	redirectType
