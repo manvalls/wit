@@ -21,41 +21,38 @@ func WriteHTML(w http.ResponseWriter, delta Delta) error {
 
 func applyDelta(root *html.Node, nodes []*html.Node, delta Delta) (newRoot *html.Node, discardNext bool) {
 
+	newRoot = root
+	discardNext = false
+
 	switch delta.typeID {
 
 	case sliceType:
 		deltas := delta.delta.(*deltaSlice).deltas
-		discard := false
 
 		for _, childDelta := range deltas {
-			if discard {
+			if discardNext {
 				discardDelta(childDelta)
 			} else {
-				root, discard = applyDelta(root, nodes, childDelta)
+				newRoot, discardNext = applyDelta(root, nodes, childDelta)
 			}
 		}
-
-		return root, discard
 
 	case channelType:
 		d := delta.delta.(*deltaChannel)
 
 		channel := d.channel
 		cancel := d.cancel
-		discard := false
 
 		for childDelta := range channel {
-			if discard {
+			if discardNext {
 				discardDelta(childDelta)
 			} else {
-				root, discard = applyDelta(root, nodes, childDelta)
-				if discard {
+				newRoot, discardNext = applyDelta(root, nodes, childDelta)
+				if discardNext {
 					cancel()
 				}
 			}
 		}
-
-		return root, discard
 
 	case rootType:
 		return applyDelta(root, []*html.Node{root}, delta.delta.(*deltaRoot).delta)
@@ -353,7 +350,7 @@ func applyDelta(root *html.Node, nodes []*html.Node, delta Delta) (newRoot *html
 
 	}
 
-	return root, false
+	return
 }
 
 func discardDelta(delta Delta) {
