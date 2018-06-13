@@ -153,23 +153,23 @@ func RmClass(class string) Delta {
 }
 
 // JS loads the provided script synchronously
-func JS(key string, url string) Delta {
-	return Delta{jsType, &deltaJS{key, url}}
+func JS(url string) Delta {
+	return Delta{jsType, &deltaJS{url}}
 }
 
 // AsyncJS loads the provided script asynchronously
-func AsyncJS(key string, url string) Delta {
-	return Delta{asyncJSType, &deltaAsyncJS{key, url}}
+func AsyncJS(url string) Delta {
+	return Delta{asyncJSType, &deltaAsyncJS{url}}
 }
 
 // CSS loads the provided script synchronously
-func CSS(key string, url string) Delta {
-	return Delta{cssType, &deltaCSS{key, url}}
+func CSS(url string) Delta {
+	return Delta{cssType, &deltaCSS{url}}
 }
 
 // AsyncCSS loads the provided script asynchronously
-func AsyncCSS(key string, url string) Delta {
-	return Delta{asyncCSSType, &deltaAsyncCSS{key, url}}
+func AsyncCSS(url string) Delta {
+	return Delta{asyncCSSType, &deltaAsyncCSS{url}}
 }
 
 // Call calls a JavaScript function with provided parameters, when it becomes available
