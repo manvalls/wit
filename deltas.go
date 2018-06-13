@@ -159,6 +159,15 @@ type deltaRunSync struct {
 	handler func() Delta
 }
 
+type deltaWithKey struct {
+	key   string
+	delta Delta
+}
+
+type deltaClearKey struct {
+	key string
+}
+
 // - Low level request changes
 
 type deltaStatus struct {

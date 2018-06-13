@@ -43,6 +43,8 @@ const (
 
 	jumpType
 	runSyncType
+	withKeyType
+	clearKeyType
 
 	statusType
 	redirectType

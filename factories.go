@@ -187,6 +187,16 @@ func RunSync(handler func() Delta) Delta {
 	return Delta{runSyncType, &deltaRunSync{handler}}
 }
 
+// WithKey applies the given delta only if the key wasn't previously used
+func WithKey(key string, delta Delta) Delta {
+	return Delta{withKeyType, &deltaWithKey{key, delta}}
+}
+
+// ClearKey marks the given key as unused
+func ClearKey(key string) Delta {
+	return Delta{clearKeyType, &deltaClearKey{key}}
+}
+
 // Status sets the status code of the response
 func Status(statusCode int) Delta {
 	return Delta{statusType, &deltaStatus{statusCode}}
