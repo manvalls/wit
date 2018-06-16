@@ -348,6 +348,89 @@ func applyDelta(root *html.Node, nodes []*html.Node, delta Delta) (newRoot *html
 			}
 		}
 
+	case addAttrType:
+		attr := delta.delta.(*deltaAddAttr).attr
+		for _, node := range nodes {
+			if node.Type != html.ElementNode {
+				continue
+			}
+
+			nodeAttr := map[string]int{}
+			for i, att := range node.Attr {
+				if att.Namespace != "" {
+					continue
+				}
+
+				if _, ok := nodeAttr[att.Key]; ok {
+					continue
+				}
+
+				nodeAttr[att.Key] = i
+			}
+
+			for key, value := range attr {
+				i, ok := nodeAttr[key]
+				if ok {
+					node.Attr[i] = html.Attribute{
+						Key: key,
+						Val: value,
+					}
+				} else {
+					node.Attr = append(node.Attr, html.Attribute{
+						Key: key,
+						Val: value,
+					})
+				}
+			}
+		}
+
+	case setAttrType:
+		attr := delta.delta.(*deltaAddAttr).attr
+		for _, node := range nodes {
+			if node.Type != html.ElementNode {
+				continue
+			}
+
+			i := 0
+			nodeAttr := make([]html.Attribute, len(attr))
+			for key, value := range attr {
+				nodeAttr[i] = html.Attribute{
+					Key: key,
+					Val: value,
+				}
+
+				i++
+			}
+
+			node.Attr = nodeAttr
+		}
+
+	case rmAttrType:
+		attr := delta.delta.(*deltaRmAttr).attr
+		attrMap := map[string]bool{}
+		for _, key := range attr {
+			attrMap[key] = true
+		}
+
+		for _, node := range nodes {
+			if node.Type != html.ElementNode {
+				continue
+			}
+
+			nodeAttr := make([]html.Attribute, 0, len(node.Attr))
+			for _, att := range node.Attr {
+				if att.Namespace != "" {
+					continue
+				}
+
+				if !attrMap[att.Key] {
+					nodeAttr = append(nodeAttr, att)
+				}
+			}
+
+			node.Attr = nodeAttr
+		}
+
 	}
 
 	return
