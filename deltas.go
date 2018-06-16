@@ -113,7 +113,7 @@ type deltaAddStyles struct {
 }
 
 type deltaRmStyles struct {
-	attr []string
+	styles []string
 }
 
 type deltaAddClass struct {

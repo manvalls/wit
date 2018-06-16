@@ -431,11 +431,176 @@ func applyDelta(root *html.Node, nodes []*html.Node, delta Delta) (newRoot *html
 			node.Attr = nodeAttr
 		}
 
+	case addStylesType:
+		styles := delta.delta.(*deltaAddStyles).styles
+
+		for _, node := range nodes {
+			if node.Type != html.ElementNode {
+				continue
+			}
+
+			found := false
+			for _, att := range node.Attr {
+				if att.Namespace != "" {
+					continue
+				}
+
+				if att.Key == "style" {
+					parsed := parseStyle(att.Val)
+					for key, value := range styles {
+						parsed[key] = value
+					}
+
+					att.Val = buildStyle(parsed)
+					found = true
+				}
+			}
+
+			if !found {
+				node.Attr = append(node.Attr, html.Attribute{
+					Key: "style",
+					Val: buildStyle(styles),
+				})
+			}
+		}
+
+	case rmStylesType:
+		styles := delta.delta.(*deltaRmStyles).styles
+
+		for _, node := range nodes {
+			if node.Type != html.ElementNode {
+				continue
+			}
+
+			for _, att := range node.Attr {
+				if att.Namespace != "" {
+					continue
+				}
+
+				if att.Key == "style" {
+					parsed := parseStyle(att.Val)
+					for _, s := range styles {
+						delete(parsed, s)
+					}
+
+					att.Val = buildStyle(parsed)
+				}
+			}
+		}
 	}
 
 	return
 }
 
-func discardDelta(delta Delta) {
+func parseStyle(style string) map[string]string {
+	styleMap := map[string]string{}
 
+	key := ""
+	value := ""
+	lookingForKey := true
+	lookingForValue := false
+	fillingKey := false
+	fillingValue := false
+	inSingleQuoteString := false
+	inDoubleQuoteString := false
+	escapedChar := false
+
+	for _, r := range style {
+	start:
+		if fillingValue {
+			if escapedChar {
+				escapedChar = false
+				value += string(r)
+				continue
+			}
+
+			switch r {
+			case '\\':
+				escapedChar = true
+				value += string(r)
+				continue
+			case '\'':
+				if inSingleQuoteString {
+					inSingleQuoteString = false
+				} else {
+					inSingleQuoteString = true
+				}
+
+				value += string(r)
+				continue
+			case '"':
+				if inDoubleQuoteString {
+					inDoubleQuoteString = false
+				} else {
+					inDoubleQuoteString = true
+				}
+
+				value += string(r)
+				continue
+			default:
+				if inSingleQuoteString || inDoubleQuoteString {
+					value += string(r)
+					continue
+				}
+			}
+
+			switch r {
+			case ';':
+				if key != "" {
+					styleMap[key] = value
+				}
+
+				key = ""
+				value = ""
+
+				lookingForKey = true
+				lookingForValue = false
+				fillingKey = false
+				fillingValue = false
+			default:
+				value += string(r)
+			}
+
+		} else {
+			switch r {
+			case ' ', '\t', '\r', '\n', '\f':
+				fillingKey = false
+			case ':':
+				value = ""
+				lookingForKey = false
+				lookingForValue = true
+				fillingKey = false
+				fillingValue = false
+			default:
+				if lookingForKey || fillingKey {
+					fillingKey = true
+					lookingForKey = false
+					key += string(r)
+				} else if lookingForValue || fillingValue {
+					fillingValue = true
+					lookingForValue = false
+					goto start
+				}
+			}
+		}
+
+	}
+
+	if fillingValue && key != "" {
+		styleMap[key] = value
+	}
+
+	return styleMap
+}
+
+func buildStyle(style map[string]string) string {
+	attr := ""
+	for key, value := range style {
+		attr += key + ": " + value + ";"
+	}
+
+	return attr
+}
+
+func discardDelta(delta Delta) {
 }
