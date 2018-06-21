@@ -440,7 +440,7 @@ func applyDelta(root *html.Node, nodes []*html.Node, delta Delta) (newRoot *html
 			}
 
 			found := false
-			for _, att := range node.Attr {
+			for i, att := range node.Attr {
 				if att.Namespace != "" {
 					continue
 				}
@@ -452,7 +452,9 @@ func applyDelta(root *html.Node, nodes []*html.Node, delta Delta) (newRoot *html
 					}
 
 					att.Val = buildStyle(parsed)
+					node.Attr[i] = att
 					found = true
+					break
 				}
 			}
 
@@ -472,7 +474,7 @@ func applyDelta(root *html.Node, nodes []*html.Node, delta Delta) (newRoot *html
 				continue
 			}
 
-			for _, att := range node.Attr {
+			for i, att := range node.Attr {
 				if att.Namespace != "" {
 					continue
 				}
@@ -484,6 +486,8 @@ func applyDelta(root *html.Node, nodes []*html.Node, delta Delta) (newRoot *html
 					}
 
 					att.Val = buildStyle(parsed)
+					node.Attr[i] = att
+					break
 				}
 			}
 		}
