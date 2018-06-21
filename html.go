@@ -487,6 +487,74 @@ func applyDelta(root *html.Node, nodes []*html.Node, delta Delta) (newRoot *html
 				}
 			}
 		}
+
+	case addClassType:
+		class := delta.delta.(*deltaAddClass).class
+		classesToAdd := parseClass(class)
+
+		for _, node := range nodes {
+			if node.Type != html.ElementNode {
+				continue
+			}
+
+			found := false
+			for i, att := range node.Attr {
+				if att.Namespace != "" {
+					continue
+				}
+
+				if att.Key == "class" {
+					parsed := parseClass(att.Val)
+					for key, value := range classesToAdd {
+						parsed[key] = value
+					}
+
+					att.Val = buildClass(parsed)
+					node.Attr[i] = att
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				node.Attr = append(node.Attr, html.Attribute{
+					Key: "class",
+					Val: buildClass(classesToAdd),
+				})
+			}
+		}
+
+	case rmClassType:
+		class := delta.delta.(*deltaRmClass).class
+		classesToRm := parseClass(class)
+
+		for _, node := range nodes {
+			if node.Type != html.ElementNode {
+				continue
+			}
+
+			for i, att := range node.Attr {
+				if att.Namespace != "" {
+					continue
+				}
+
+				if att.Key == "class" {
+					parsed := parseClass(att.Val)
+
+					for key, value := range classesToRm {
+						if value {
+							delete(parsed, key)
+						} else {
+							parsed[key] = true
+						}
+					}
+
+					att.Val = buildClass(parsed)
+					node.Attr[i] = att
+					break
+				}
+			}
+		}
 	}
 
 	return
@@ -600,6 +668,47 @@ func buildStyle(style map[string]string) string {
 	}
 
 	return attr
+}
+
+func parseClass(class string) map[string]bool {
+	currentClass := ""
+	classes := map[string]bool{}
+
+	flush := func() {
+		if currentClass != "" {
+			classes[currentClass] = true
+			currentClass = ""
+		}
+	}
+
+	for _, r := range class {
+		switch r {
+		case ' ', '\t', '\r', '\n', '\f':
+			flush()
+		default:
+			currentClass += string(r)
+		}
+	}
+
+	flush()
+	return classes
+}
+
+func buildClass(classes map[string]bool) string {
+	class := ""
+	i := 0
+
+	for key, value := range classes {
+		if i != 0 {
+			class += " "
+		}
+
+		if value {
+			class += key
+		}
+	}
+
+	return class
 }
 
 func discardDelta(delta Delta) {
