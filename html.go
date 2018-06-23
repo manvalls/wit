@@ -4,9 +4,13 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/andybalholm/cascadia"
 	"github.com/manvalls/wit/util"
 	"golang.org/x/net/html"
+	"golang.org/x/net/html/atom"
 )
+
+var headSelector = cascadia.MustCompile("head")
 
 var baseDocument, _ = html.Parse(strings.NewReader("<!DOCTYPE html><html><head></head><body></body></html>"))
 
@@ -558,6 +562,47 @@ func applyDelta(root *html.Node, nodes []*html.Node, delta Delta) (newRoot *html
 					break
 				}
 			}
+		}
+
+	case jsType:
+		url := delta.delta.(*deltaJS).url
+		head := headSelector.MatchFirst(root)
+
+		if head != nil {
+			head.AppendChild(&html.Node{
+				Type:      html.ElementNode,
+				DataAtom:  atom.Script,
+				Data:      "script",
+				Namespace: "",
+				Attr: []html.Attribute{
+					html.Attribute{
+						Key: "src",
+						Val: url,
+					},
+				},
+			})
+		}
+
+	case asyncJSType:
+		url := delta.delta.(*deltaAsyncJS).url
+		head := headSelector.MatchFirst(root)
+
+		if head != nil {
+			head.AppendChild(&html.Node{
+				Type:      html.ElementNode,
+				DataAtom:  atom.Script,
+				Data:      "script",
+				Namespace: "",
+				Attr: []html.Attribute{
+					html.Attribute{
+						Key: "src",
+						Val: url,
+					},
+					html.Attribute{
+						Key: "async",
+					},
+				},
+			})
 		}
 	}
 
