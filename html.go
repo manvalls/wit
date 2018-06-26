@@ -10,13 +10,16 @@ import (
 	"golang.org/x/net/html/atom"
 )
 
+const loadCSS = "/* loadCSS. [c]2017 Filament Group, Inc. MIT License */(function(e){var d={};d.c=function(){try{var a=e.document.createElement(\"link\").f.supports(\"preload\")}catch(b){a=!1}return function(){return a}}();d.a=function(a){function b(){a.media=c}var c=a.media||\"all\";a.addEventListener?a.addEventListener(\"load\",b):a.attachEvent&&a.attachEvent(\"onload\",b);setTimeout(function(){a.rel=\"stylesheet\";a.media=\"only x\"});setTimeout(b,3E3)};d.b=function(){for(var a=e.document.getElementsByTagName(\"link\"),b=0;b<a.length;b++){var c=a[b];\"preload\"!==c.rel||\"style\"!==c.getAttribute(\"as\")||c.getAttribute(\"data-loadcss\")||(c.setAttribute(\"data-loadcss\",!0),d.a(c))}};d.c()||d.b()})(window);"
+
 var headSelector = cascadia.MustCompile("head")
 
 var baseDocument, _ = html.Parse(strings.NewReader("<!DOCTYPE html><html><head></head><body></body></html>"))
 
 type htmlContext struct {
-	root  *html.Node
-	nodes []*html.Node
+	root            *html.Node
+	nodes           []*html.Node
+	loadCSSPolyfill *html.Node
 }
 
 // WriteHTML writes the result of applying the provided delta to an empty
@@ -632,6 +635,115 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 				},
 			})
 		}
+
+	case cssType:
+		url := delta.delta.(*deltaCSS).url
+		head := headSelector.MatchFirst(c.root)
+
+		if head != nil {
+			head.AppendChild(&html.Node{
+				Type:      html.ElementNode,
+				DataAtom:  atom.Link,
+				Data:      "link",
+				Namespace: "",
+				Attr: []html.Attribute{
+					html.Attribute{
+						Key: "rel",
+						Val: "stylesheet",
+					},
+					html.Attribute{
+						Key: "type",
+						Val: "text/css",
+					},
+					html.Attribute{
+						Key: "href",
+						Val: url,
+					},
+				},
+			})
+		}
+
+	case asyncCSSType:
+		url := delta.delta.(*deltaCSS).url
+
+		if c.loadCSSPolyfill == nil {
+			head := headSelector.MatchFirst(c.root)
+			if head == nil {
+				return
+			}
+
+			c.loadCSSPolyfill = &html.Node{
+				Type:      html.ElementNode,
+				DataAtom:  atom.Script,
+				Data:      "script",
+				Namespace: "",
+			}
+
+			head.AppendChild(c.loadCSSPolyfill)
+
+			c.loadCSSPolyfill.AppendChild(&html.Node{
+				Type: html.TextNode,
+				Data: loadCSS,
+			})
+		}
+
+		parent := c.loadCSSPolyfill.Parent
+		if parent != nil {
+			parent.InsertBefore(&html.Node{
+				Type:      html.ElementNode,
+				DataAtom:  atom.Link,
+				Data:      "link",
+				Namespace: "",
+				Attr: []html.Attribute{
+					html.Attribute{
+						Key: "rel",
+						Val: "preload",
+					},
+					html.Attribute{
+						Key: "href",
+						Val: url,
+					},
+					html.Attribute{
+						Key: "as",
+						Val: "style",
+					},
+					html.Attribute{
+						Key: "onload",
+						Val: "this.onload=null;this.rel='stylesheet'",
+					},
+				},
+			}, c.loadCSSPolyfill)
+
+			noscript := &html.Node{
+				Type:      html.ElementNode,
+				DataAtom:  atom.Noscript,
+				Data:      "noscript",
+				Namespace: "",
+			}
+
+			parent.InsertBefore(noscript, c.loadCSSPolyfill)
+			noscript.AppendChild(&html.Node{
+				Type:      html.ElementNode,
+				DataAtom:  atom.Link,
+				Data:      "link",
+				Namespace: "",
+				Attr: []html.Attribute{
+					html.Attribute{
+						Key: "rel",
+						Val: "stylesheet",
+					},
+					html.Attribute{
+						Key: "type",
+						Val: "text/css",
+					},
+					html.Attribute{
+						Key: "href",
+						Val: url,
+					},
+				},
+			})
+		}
+
 	}
 
 	return
