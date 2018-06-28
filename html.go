@@ -10,6 +10,8 @@ import (
 	"golang.org/x/net/html/atom"
 )
 
+const witCall = "(function(){var a=window.wit=window.wit||{},g=[];if(!a.call){a.call=function(c,b,d){var a=window;d=d||document.scripts[document.scripts.length-1].parentNode;var e;for(e=0;e<c.length;e++){var f=a;a=a[c[e]];if(!a){g.push([c,b,d]);return}}a.call(f,b,d)};var f=a.run;a.run=function(){var c=g,b;g=[];for(b=0;b<c.length;b++)try{a.call(c[b][0],c[b][1],c[b][2])}catch(d){setTimeout(function(){throw d;},0)}f&&f()}}})();"
+
 const loadCSS = "/* loadCSS. [c]2017 Filament Group, Inc. MIT License */(function(e){var d={};d.c=function(){try{var a=e.document.createElement(\"link\").f.supports(\"preload\")}catch(b){a=!1}return function(){return a}}();d.a=function(a){function b(){a.media=c}var c=a.media||\"all\";a.addEventListener?a.addEventListener(\"load\",b):a.attachEvent&&a.attachEvent(\"onload\",b);setTimeout(function(){a.rel=\"stylesheet\";a.media=\"only x\"});setTimeout(b,3E3)};d.b=function(){for(var a=e.document.getElementsByTagName(\"link\"),b=0;b<a.length;b++){var c=a[b];\"preload\"!==c.rel||\"style\"!==c.getAttribute(\"as\")||c.getAttribute(\"data-loadcss\")||(c.setAttribute(\"data-loadcss\",!0),d.a(c))}};d.c()||d.b()})(window);"
 
 var headSelector = cascadia.MustCompile("head")
