@@ -902,5 +902,46 @@ func buildClass(classes map[string]bool) string {
 	return class
 }
 
+func escape(str string) string {
+	return strings.Replace(
+		strings.Replace(str, "\\", "\\\\", -1),
+		"\"",
+		"\\\"",
+		-1,
+	)
+}
+
+func pathToJson(arr []string) string {
+	result := "["
+
+	for i, str := range arr {
+		if i != 0 {
+			result += ","
+		}
+
+		result += "\"" + escape(str) + "\""
+	}
+
+	result += "]"
+	return result
+}
+
+func argsToJson(args map[string]string) string {
+	result := "{"
+	i := 0
+
+	for key, value := range args {
+		if i != 0 {
+			result += ","
+		}
+
+		result += "\"" + escape(key) + "\":\"" + escape(value) + "\""
+		i++
+	}
+
+	result += "}"
+	return result
+}
+
 func discardDelta(delta Delta) {
 }
