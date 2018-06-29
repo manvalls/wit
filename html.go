@@ -666,7 +666,7 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 		}
 
 	case asyncCSSType:
-		url := delta.delta.(*deltaCSS).url
+		url := delta.delta.(*deltaAsyncCSS).url
 
 		if c.loadCSSPolyfill == nil {
 			head := headSelector.MatchFirst(c.root)
