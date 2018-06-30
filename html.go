@@ -795,6 +795,15 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 			})
 		}
 
+	case jumpType:
+		d := delta.delta.(*deltaJump).delta
+		nodes := util.Clone([]*html.Node{baseDocument})
+
+		return applyDelta(&htmlContext{
+			root:  nodes[0],
+			nodes: nodes,
+		}, d)
+
 	}
 
 	return
