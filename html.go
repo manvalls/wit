@@ -23,6 +23,7 @@ type htmlContext struct {
 	nodes           []*html.Node
 	loadCSSPolyfill *html.Node
 	isWitCallLoaded bool
+	keys            map[string]bool
 }
 
 // WriteHTML writes the result of applying the provided delta to an empty
@@ -33,9 +34,38 @@ func WriteHTML(w http.ResponseWriter, delta Delta) error {
 	c := applyDelta(&htmlContext{
 		root:  nodes[0],
 		nodes: nodes,
+		keys:  map[string]bool{},
 	}, delta)
 
 	if c.root != nil {
+		head := headSelector.MatchFirst(c.root)
+		if head != nil {
+			script := &html.Node{
+				Type:      html.ElementNode,
+				DataAtom:  atom.Script,
+				Data:      "script",
+				Namespace: "",
+			}
+
+			if head.FirstChild != nil {
+				head.InsertBefore(script, head.FirstChild)
+			} else {
+				head.AppendChild(script)
+			}
+
+			keys := make([]string, len(c.keys))
+			i := 0
+			for key := range c.keys {
+				keys[i] = key
+				i++
+			}
+
+			script.AppendChild(&html.Node{
+				Type: html.TextNode,
+				Data: "window.wit=window.wit||{};window.wit.keys=" + pathToJSON(keys) + ";",
+			})
+		}
+
 		return html.Render(w, c.root)
 	}
 
@@ -802,11 +832,26 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 		return applyDelta(&htmlContext{
 			root:  nodes[0],
 			nodes: nodes,
+			keys:  map[string]bool{},
 		}, d)
 
 	case runSyncType:
 		f := delta.delta.(*deltaRunSync).handler
 		return applyDelta(c, f())
+
+	case withKeyType:
+		d := delta.delta.(*deltaWithKey)
+
+		if c.keys[d.key] {
+			return
+		}
+
+		c.keys[d.key] = true
+		return applyDelta(c, d.delta)
+
+	case clearKeyType:
+		key := delta.delta.(*deltaClearKey).key
+		delete(c.keys, key)
 
 	}
 
