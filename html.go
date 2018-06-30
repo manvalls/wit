@@ -804,6 +804,10 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 			nodes: nodes,
 		}, d)
 
+	case runSyncType:
+		f := delta.delta.(*deltaRunSync).handler
+		return applyDelta(c, f())
+
 	}
 
 	return
