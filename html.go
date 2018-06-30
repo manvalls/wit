@@ -22,6 +22,7 @@ type htmlContext struct {
 	root            *html.Node
 	nodes           []*html.Node
 	loadCSSPolyfill *html.Node
+	isWitCallLoaded bool
 }
 
 // WriteHTML writes the result of applying the provided delta to an empty
@@ -743,6 +744,54 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 						Val: url,
 					},
 				},
+			})
+		}
+
+	case callType:
+		d := delta.delta.(*deltaCall)
+
+		if !c.isWitCallLoaded {
+			head := headSelector.MatchFirst(c.root)
+			if head == nil {
+				return
+			}
+
+			script := &html.Node{
+				Type:      html.ElementNode,
+				DataAtom:  atom.Script,
+				Data:      "script",
+				Namespace: "",
+			}
+
+			if head.FirstChild != nil {
+				head.InsertBefore(script, head.FirstChild)
+			} else {
+				head.AppendChild(script)
+			}
+
+			script.AppendChild(&html.Node{
+				Type: html.TextNode,
+				Data: witCall,
+			})
+		}
+
+		for _, node := range c.nodes {
+			if node.Type != html.ElementNode {
+				continue
+			}
+
+			script := &html.Node{
+				Type:      html.ElementNode,
+				DataAtom:  atom.Script,
+				Data:      "script",
+				Namespace: "",
+			}
+
+			node.AppendChild(script)
+
+			script.AppendChild(&html.Node{
+				Type: html.TextNode,
+				Data: "wit.call(" + pathToJson(d.path) + "," + argsToJson(d.arguments) + ")",
 			})
 		}
 
