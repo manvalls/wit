@@ -791,7 +791,7 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 
 			script.AppendChild(&html.Node{
 				Type: html.TextNode,
-				Data: "wit.call(" + pathToJson(d.path) + "," + argsToJson(d.arguments) + ")",
+				Data: "wit.call(" + pathToJSON(d.path) + "," + argsToJSON(d.arguments) + ")",
 			})
 		}
 
@@ -969,7 +969,7 @@ func escape(str string) string {
 	)
 }
 
-func pathToJson(arr []string) string {
+func pathToJSON(arr []string) string {
 	result := "["
 
 	for i, str := range arr {
@@ -984,7 +984,7 @@ func pathToJson(arr []string) string {
 	return result
 }
 
-func argsToJson(args map[string]string) string {
+func argsToJSON(args map[string]string) string {
 	result := "{"
 	i := 0
 
