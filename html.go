@@ -803,7 +803,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 
 			script.AppendChild(&html.Node{
 				Type: html.TextNode,
-				Data: "wit.call(" + strSliceToJSON(d.path) + "," + strMapToJSON(d.arguments) + ")",
+				Data: "wit.call(" + strSliceToJSON(d.path) + "," + strMapToJSON(d.arguments) + ");",
 			})
 		}
 
