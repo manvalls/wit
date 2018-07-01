@@ -25,6 +25,7 @@ type htmlContext struct {
 	keys            map[string]bool
 	deferred        []*deltaWithContext
 	status          int
+	headers         http.Header
 }
 
 type deltaWithContext struct {
@@ -39,8 +40,9 @@ func WriteHTML(w http.ResponseWriter, delta Delta) error {
 	nodes := util.Clone([]*html.Node{baseDocument})
 
 	c := applyDelta(&htmlContext{
-		root: nodes[0],
-		keys: map[string]bool{},
+		root:    nodes[0],
+		keys:    map[string]bool{},
+		headers: make(http.Header),
 	}, nodes, delta)
 
 	for len(c.deferred) > 0 {
@@ -54,6 +56,11 @@ func WriteHTML(w http.ResponseWriter, delta Delta) error {
 				c = applyDelta(c, def.nodes, def.delta)
 			}
 		}
+	}
+
+	headers := w.Header()
+	for key, value := range c.headers {
+		headers[key] = value
 	}
 
 	if c.status != 0 {
@@ -841,8 +848,9 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 		}
 
 		return applyDelta(&htmlContext{
-			root: childNodes[0],
-			keys: map[string]bool{},
+			root:    childNodes[0],
+			keys:    map[string]bool{},
+			headers: make(http.Header),
 		}, childNodes, d)
 
 	case runSyncType:
@@ -873,6 +881,29 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 	case statusType:
 		c.status = delta.delta.(*deltaStatus).code
 
+	case redirectType:
+		d := delta.delta.(*deltaRedirect)
+		c.status = d.code
+		c.headers.Set("Location", d.location)
+		c.root = nil
+
+	case addHeadersType:
+		headers := delta.delta.(*deltaAddHeaders).headers
+		for key, value := range headers {
+			c.headers.Add(key, value)
+		}
+
+	case setHeadersType:
+		headers := delta.delta.(*deltaSetHeaders).headers
+		for key, value := range headers {
+			c.headers.Set(key, value)
+		}
+
+	case rmHeadersType:
+		headers := delta.delta.(*deltaRmHeaders).headers
+		for _, header := range headers {
+			c.headers.Del(header)
+		}
 	}
 
 	return
