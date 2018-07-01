@@ -916,6 +916,3 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 
 	return
 }
-
-func discardDelta(delta Delta) {
-}
