@@ -1,6 +1,7 @@
 package wit
 
 import (
+	"io"
 	"net/http"
 	"strings"
 
@@ -26,6 +27,7 @@ type htmlContext struct {
 	deferred        []*deltaWithContext
 	status          int
 	headers         http.Header
+	answer          io.ReadCloser
 }
 
 type deltaWithContext struct {
@@ -36,7 +38,7 @@ type deltaWithContext struct {
 
 // WriteHTML writes the result of applying the provided delta to an empty
 // document as formatted HTML
-func WriteHTML(w http.ResponseWriter, delta Delta) error {
+func WriteHTML(w http.ResponseWriter, delta Delta) {
 	nodes := util.Clone([]*html.Node{baseDocument})
 
 	c := applyDelta(&htmlContext{
@@ -96,10 +98,11 @@ func WriteHTML(w http.ResponseWriter, delta Delta) error {
 			})
 		}
 
-		return html.Render(w, c.root)
+		html.Render(w, c.root)
+	} else if c.answer != nil {
+		io.Copy(w, c.answer)
+		c.answer.Close()
 	}
-
-	return nil
 }
 
 func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlContext) {
@@ -904,6 +907,11 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 		for _, header := range headers {
 			c.headers.Del(header)
 		}
+
+	case answerType:
+		c.answer = delta.delta.(*deltaAnswer).reader
+		c.root = nil
+
 	}
 
 	return
