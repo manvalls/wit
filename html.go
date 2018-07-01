@@ -20,7 +20,6 @@ var baseDocument, _ = html.Parse(strings.NewReader("<!DOCTYPE html><html><head><
 
 type htmlContext struct {
 	root            *html.Node
-	nodes           []*html.Node
 	loadCSSPolyfill *html.Node
 	isWitCallLoaded bool
 	keys            map[string]bool
@@ -32,10 +31,9 @@ func WriteHTML(w http.ResponseWriter, delta Delta) error {
 	nodes := util.Clone([]*html.Node{baseDocument})
 
 	c := applyDelta(&htmlContext{
-		root:  nodes[0],
-		nodes: nodes,
-		keys:  map[string]bool{},
-	}, delta)
+		root: nodes[0],
+		keys: map[string]bool{},
+	}, nodes, delta)
 
 	if c.root != nil {
 		head := headSelector.MatchFirst(c.root)
@@ -72,7 +70,7 @@ func WriteHTML(w http.ResponseWriter, delta Delta) error {
 	return nil
 }
 
-func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
+func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlContext) {
 
 	next = c
 
@@ -85,7 +83,7 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 			if c.root != next.root {
 				discardDelta(childDelta)
 			} else {
-				next = applyDelta(next, childDelta)
+				next = applyDelta(next, nodes, childDelta)
 			}
 		}
 
@@ -99,7 +97,7 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 			if c.root != next.root {
 				discardDelta(childDelta)
 			} else {
-				next = applyDelta(next, childDelta)
+				next = applyDelta(next, nodes, childDelta)
 				if c.root != next.root {
 					cancel()
 				}
@@ -107,17 +105,15 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 		}
 
 	case rootType:
-		childCtx := *c
-		childCtx.nodes = []*html.Node{c.root}
-		return applyDelta(&childCtx, delta.delta.(*deltaRoot).delta)
+		return applyDelta(c, []*html.Node{c.root}, delta.delta.(*deltaRoot).delta)
 
 	case selectorType:
 		d := delta.delta.(*deltaSelector)
 		selector := d.selector.selector()
 
 		if selector != nil {
-			childNodes := make([]*html.Node, 0, len(c.nodes))
-			for _, node := range c.nodes {
+			childNodes := make([]*html.Node, 0, len(nodes))
+			for _, node := range nodes {
 				m := selector.MatchFirst(node)
 				if m != nil {
 					childNodes = append(childNodes, m)
@@ -125,9 +121,7 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 			}
 
 			if len(childNodes) > 0 {
-				childCtx := *c
-				childCtx.nodes = childNodes
-				return applyDelta(&childCtx, d.delta)
+				return applyDelta(c, childNodes, d.delta)
 			}
 		}
 
@@ -136,8 +130,8 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 		selector := d.selector.selector()
 
 		if selector != nil {
-			childNodes := make([]*html.Node, 0, len(c.nodes))
-			for _, node := range c.nodes {
+			childNodes := make([]*html.Node, 0, len(nodes))
+			for _, node := range nodes {
 				ms := selector.MatchAll(node)
 				for _, m := range ms {
 					childNodes = append(childNodes, m)
@@ -145,17 +139,15 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 			}
 
 			if len(childNodes) > 0 {
-				childCtx := *c
-				childCtx.nodes = childNodes
-				return applyDelta(&childCtx, d.delta)
+				return applyDelta(c, childNodes, d.delta)
 			}
 		}
 
 	case parentType:
 		d := delta.delta.(*deltaParent)
-		childNodes := make([]*html.Node, 0, len(c.nodes))
+		childNodes := make([]*html.Node, 0, len(nodes))
 
-		for _, node := range c.nodes {
+		for _, node := range nodes {
 			m := node.Parent
 			if m != nil {
 				childNodes = append(childNodes, m)
@@ -163,16 +155,14 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 		}
 
 		if len(childNodes) > 0 {
-			childCtx := *c
-			childCtx.nodes = childNodes
-			return applyDelta(&childCtx, d.delta)
+			return applyDelta(c, childNodes, d.delta)
 		}
 
 	case firstChildType:
 		d := delta.delta.(*deltaFirstChild)
-		childNodes := make([]*html.Node, 0, len(c.nodes))
+		childNodes := make([]*html.Node, 0, len(nodes))
 
-		for _, node := range c.nodes {
+		for _, node := range nodes {
 			m := node.FirstChild
 			for m != nil && m.Type != html.ElementNode {
 				m = m.NextSibling
@@ -184,16 +174,14 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 		}
 
 		if len(childNodes) > 0 {
-			childCtx := *c
-			childCtx.nodes = childNodes
-			return applyDelta(&childCtx, d.delta)
+			return applyDelta(c, childNodes, d.delta)
 		}
 
 	case lastChildType:
 		d := delta.delta.(*deltaLastChild)
-		childNodes := make([]*html.Node, 0, len(c.nodes))
+		childNodes := make([]*html.Node, 0, len(nodes))
 
-		for _, node := range c.nodes {
+		for _, node := range nodes {
 			m := node.LastChild
 			for m != nil && m.Type != html.ElementNode {
 				m = m.PrevSibling
@@ -205,16 +193,14 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 		}
 
 		if len(childNodes) > 0 {
-			childCtx := *c
-			childCtx.nodes = childNodes
-			return applyDelta(&childCtx, d.delta)
+			return applyDelta(c, nodes, d.delta)
 		}
 
 	case prevSiblingType:
 		d := delta.delta.(*deltaPrevSibling)
-		childNodes := make([]*html.Node, 0, len(c.nodes))
+		childNodes := make([]*html.Node, 0, len(nodes))
 
-		for _, node := range c.nodes {
+		for _, node := range nodes {
 			m := node.PrevSibling
 			for m != nil && m.Type != html.ElementNode {
 				m = m.PrevSibling
@@ -226,16 +212,14 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 		}
 
 		if len(childNodes) > 0 {
-			childCtx := *c
-			childCtx.nodes = childNodes
-			return applyDelta(&childCtx, d.delta)
+			return applyDelta(c, childNodes, d.delta)
 		}
 
 	case nextSiblingType:
 		d := delta.delta.(*deltaNextSibling)
-		childNodes := make([]*html.Node, 0, len(c.nodes))
+		childNodes := make([]*html.Node, 0, len(nodes))
 
-		for _, node := range c.nodes {
+		for _, node := range nodes {
 			m := node.NextSibling
 			for m != nil && m.Type != html.ElementNode {
 				m = m.NextSibling
@@ -247,14 +231,12 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 		}
 
 		if len(childNodes) > 0 {
-			childCtx := *c
-			childCtx.nodes = childNodes
-			return applyDelta(&childCtx, d.delta)
+			return applyDelta(c, nodes, d.delta)
 		}
 
 	case removeType:
 
-		for _, node := range c.nodes {
+		for _, node := range nodes {
 			parent := node.Parent
 			if parent != nil {
 				parent.RemoveChild(node)
@@ -263,7 +245,7 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 
 	case clearType:
 
-		for _, node := range c.nodes {
+		for _, node := range nodes {
 			if node.Type == html.ElementNode {
 				for node.FirstChild != nil {
 					node.RemoveChild(node.FirstChild)
@@ -274,13 +256,13 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 	case htmlType:
 
 		childNodes := delta.delta.(*deltaHTML).factory.Nodes()
-		for _, node := range c.nodes {
+		for _, node := range nodes {
 			if node.Type != html.ElementNode {
 				continue
 			}
 
 			children := childNodes
-			if len(c.nodes) > 1 {
+			if len(nodes) > 1 {
 				children = util.Clone(children)
 			}
 
@@ -296,7 +278,7 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 	case textType:
 
 		text := delta.delta.(*deltaText).text
-		for _, node := range c.nodes {
+		for _, node := range nodes {
 			if node.Type != html.ElementNode {
 				continue
 			}
@@ -314,13 +296,13 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 	case replaceType:
 
 		childNodes := delta.delta.(*deltaReplace).factory.Nodes()
-		for _, node := range c.nodes {
+		for _, node := range nodes {
 			if node.Type != html.ElementNode || node.Parent == nil {
 				continue
 			}
 
 			children := childNodes
-			if len(c.nodes) > 1 {
+			if len(nodes) > 1 {
 				children = util.Clone(children)
 			}
 
@@ -334,13 +316,13 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 	case appendType:
 
 		childNodes := delta.delta.(*deltaAppend).factory.Nodes()
-		for _, node := range c.nodes {
+		for _, node := range nodes {
 			if node.Type != html.ElementNode {
 				continue
 			}
 
 			children := childNodes
-			if len(c.nodes) > 1 {
+			if len(nodes) > 1 {
 				children = util.Clone(children)
 			}
 
@@ -352,13 +334,13 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 	case prependType:
 
 		childNodes := delta.delta.(*deltaPrepend).factory.Nodes()
-		for _, node := range c.nodes {
+		for _, node := range nodes {
 			if node.Type != html.ElementNode {
 				continue
 			}
 
 			children := childNodes
-			if len(c.nodes) > 1 {
+			if len(nodes) > 1 {
 				children = util.Clone(children)
 			}
 
@@ -377,13 +359,13 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 	case insertAfterType:
 
 		childNodes := delta.delta.(*deltaInsertAfter).factory.Nodes()
-		for _, node := range c.nodes {
+		for _, node := range nodes {
 			if node.Type != html.ElementNode || node.Parent == nil {
 				continue
 			}
 
 			children := childNodes
-			if len(c.nodes) > 1 {
+			if len(nodes) > 1 {
 				children = util.Clone(children)
 			}
 
@@ -401,13 +383,13 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 	case insertBeforeType:
 
 		childNodes := delta.delta.(*deltaInsertBefore).factory.Nodes()
-		for _, node := range c.nodes {
+		for _, node := range nodes {
 			if node.Type != html.ElementNode || node.Parent == nil {
 				continue
 			}
 
 			children := childNodes
-			if len(c.nodes) > 1 {
+			if len(nodes) > 1 {
 				children = util.Clone(children)
 			}
 
@@ -418,7 +400,7 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 
 	case addAttrType:
 		attr := delta.delta.(*deltaAddAttr).attr
-		for _, node := range c.nodes {
+		for _, node := range nodes {
 			if node.Type != html.ElementNode {
 				continue
 			}
@@ -454,7 +436,7 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 
 	case setAttrType:
 		attr := delta.delta.(*deltaAddAttr).attr
-		for _, node := range c.nodes {
+		for _, node := range nodes {
 			if node.Type != html.ElementNode {
 				continue
 			}
@@ -480,7 +462,7 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 			attrMap[key] = true
 		}
 
-		for _, node := range c.nodes {
+		for _, node := range nodes {
 			if node.Type != html.ElementNode {
 				continue
 			}
@@ -502,7 +484,7 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 	case addStylesType:
 		styles := delta.delta.(*deltaAddStyles).styles
 
-		for _, node := range c.nodes {
+		for _, node := range nodes {
 			if node.Type != html.ElementNode {
 				continue
 			}
@@ -537,7 +519,7 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 	case rmStylesType:
 		styles := delta.delta.(*deltaRmStyles).styles
 
-		for _, node := range c.nodes {
+		for _, node := range nodes {
 			if node.Type != html.ElementNode {
 				continue
 			}
@@ -564,7 +546,7 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 		class := delta.delta.(*deltaAddClass).class
 		classesToAdd := parseClass(class)
 
-		for _, node := range c.nodes {
+		for _, node := range nodes {
 			if node.Type != html.ElementNode {
 				continue
 			}
@@ -600,7 +582,7 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 		class := delta.delta.(*deltaRmClass).class
 		classesToRm := parseClass(class)
 
-		for _, node := range c.nodes {
+		for _, node := range nodes {
 			if node.Type != html.ElementNode {
 				continue
 			}
@@ -805,7 +787,7 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 			})
 		}
 
-		for _, node := range c.nodes {
+		for _, node := range nodes {
 			if node.Type != html.ElementNode {
 				continue
 			}
@@ -827,17 +809,16 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 
 	case jumpType:
 		d := delta.delta.(*deltaJump).delta
-		nodes := util.Clone([]*html.Node{baseDocument})
+		childNodes := util.Clone([]*html.Node{baseDocument})
 
 		return applyDelta(&htmlContext{
-			root:  nodes[0],
-			nodes: nodes,
-			keys:  map[string]bool{},
-		}, d)
+			root: childNodes[0],
+			keys: map[string]bool{},
+		}, childNodes, d)
 
 	case runSyncType:
 		f := delta.delta.(*deltaRunSync).handler
-		return applyDelta(c, f())
+		return applyDelta(c, nodes, f())
 
 	case withKeyType:
 		d := delta.delta.(*deltaWithKey)
@@ -847,7 +828,7 @@ func applyDelta(c *htmlContext, delta Delta) (next *htmlContext) {
 		}
 
 		c.keys[d.key] = true
-		return applyDelta(c, d.delta)
+		return applyDelta(c, nodes, d.delta)
 
 	case clearKeyType:
 		key := delta.delta.(*deltaClearKey).key
