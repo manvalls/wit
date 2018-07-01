@@ -24,6 +24,7 @@ type htmlContext struct {
 	isWitCallLoaded bool
 	keys            map[string]bool
 	deferred        []*deltaWithContext
+	status          int
 }
 
 type deltaWithContext struct {
@@ -53,6 +54,10 @@ func WriteHTML(w http.ResponseWriter, delta Delta) error {
 				c = applyDelta(c, def.nodes, def.delta)
 			}
 		}
+	}
+
+	if c.status != 0 {
+		w.WriteHeader(c.status)
 	}
 
 	if c.root != nil {
@@ -864,6 +869,9 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 			nodes: nodes,
 			delta: delta.delta.(*deltaDefer).delta,
 		})
+
+	case statusType:
+		c.status = delta.delta.(*deltaStatus).code
 
 	}
 
