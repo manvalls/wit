@@ -23,6 +23,13 @@ type htmlContext struct {
 	loadCSSPolyfill *html.Node
 	isWitCallLoaded bool
 	keys            map[string]bool
+	deferred        []*deltaWithContext
+}
+
+type deltaWithContext struct {
+	delta Delta
+	root  *html.Node
+	nodes []*html.Node
 }
 
 // WriteHTML writes the result of applying the provided delta to an empty
@@ -34,6 +41,19 @@ func WriteHTML(w http.ResponseWriter, delta Delta) error {
 		root: nodes[0],
 		keys: map[string]bool{},
 	}, nodes, delta)
+
+	for len(c.deferred) > 0 {
+		deferred := c.deferred
+		c.deferred = nil
+
+		for _, def := range deferred {
+			if def.root != c.root {
+				discardDelta(def.delta)
+			} else {
+				c = applyDelta(c, def.nodes, def.delta)
+			}
+		}
+	}
 
 	if c.root != nil {
 		head := headSelector.MatchFirst(c.root)
@@ -811,6 +831,10 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 		d := delta.delta.(*deltaJump).delta
 		childNodes := util.Clone([]*html.Node{baseDocument})
 
+		for _, def := range c.deferred {
+			discardDelta(def.delta)
+		}
+
 		return applyDelta(&htmlContext{
 			root: childNodes[0],
 			keys: map[string]bool{},
@@ -833,6 +857,13 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 	case clearKeyType:
 		key := delta.delta.(*deltaClearKey).key
 		delete(c.keys, key)
+
+	case deferType:
+		c.deferred = append(c.deferred, &deltaWithContext{
+			root:  c.root,
+			nodes: nodes,
+			delta: delta.delta.(*deltaDefer).delta,
+		})
 
 	}
 
