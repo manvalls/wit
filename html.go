@@ -864,6 +864,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 		d := delta.delta.(*deltaWithKey)
 
 		if c.keys[d.key] {
+			discardDelta(d.delta)
 			return
 		}
 
