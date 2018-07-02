@@ -18,6 +18,10 @@ func S(selector string) Selector {
 
 // One applies the given delta to the first matching element
 func (s Selector) One(deltas ...Delta) Delta {
+	if isEmpty(deltas) {
+		return Nil
+	}
+
 	if len(deltas) == 1 {
 		return Delta{selectorType, &deltaSelector{s, deltas[0]}}
 	}
@@ -27,6 +31,10 @@ func (s Selector) One(deltas ...Delta) Delta {
 
 // All applies the given delta to all matching elements
 func (s Selector) All(deltas ...Delta) Delta {
+	if isEmpty(deltas) {
+		return Nil
+	}
+
 	if len(deltas) == 1 {
 		return Delta{selectorAllType, &deltaSelectorAll{s, deltas[0]}}
 	}

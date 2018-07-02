@@ -7,28 +7,40 @@ import (
 	"golang.org/x/net/html"
 )
 
+func isEmpty(deltas []Delta) bool {
+	for _, delta := range deltas {
+		if delta.typeID != 0 {
+			return false
+		}
+	}
+
+	return true
+}
+
 // List groups a list of deltas together
 func List(deltas ...Delta) Delta {
-	switch len(deltas) {
-	case 0:
+	if isEmpty(deltas) {
 		return Nil
-	case 1:
-		return deltas[0]
-	default:
-		return Delta{sliceType, &deltaSlice{deltas}}
 	}
+
+	if len(deltas) == 1 {
+		return deltas[0]
+	}
+
+	return Delta{sliceType, &deltaSlice{deltas}}
 }
 
 // Root applies given deltas to the root of the document
 func Root(deltas ...Delta) Delta {
-	switch len(deltas) {
-	case 0:
+	if isEmpty(deltas) {
 		return Nil
-	case 1:
-		return Delta{rootType, &deltaRoot{deltas[0]}}
-	default:
-		return Delta{rootType, &deltaRoot{List(deltas...)}}
 	}
+
+	if len(deltas) == 1 {
+		return Delta{rootType, &deltaRoot{deltas[0]}}
+	}
+
+	return Delta{rootType, &deltaRoot{List(deltas...)}}
 }
 
 // Run runs the given function under the given context, returning a delta
@@ -83,62 +95,67 @@ func Text(txt string) Delta {
 
 // Parent applies provided deltas to the parent of matching elements
 func Parent(deltas ...Delta) Delta {
-	switch len(deltas) {
-	case 0:
+	if isEmpty(deltas) {
 		return Nil
-	case 1:
-		return Delta{parentType, &deltaParent{deltas[0]}}
-	default:
-		return Delta{parentType, &deltaParent{List(deltas...)}}
 	}
+
+	if len(deltas) == 1 {
+		return Delta{parentType, &deltaParent{deltas[0]}}
+	}
+
+	return Delta{parentType, &deltaParent{List(deltas...)}}
 }
 
 // FirstChild applies provided deltas to the first child of matching elements
 func FirstChild(deltas ...Delta) Delta {
-	switch len(deltas) {
-	case 0:
+	if isEmpty(deltas) {
 		return Nil
-	case 1:
-		return Delta{firstChildType, &deltaFirstChild{deltas[0]}}
-	default:
-		return Delta{firstChildType, &deltaFirstChild{List(deltas...)}}
 	}
+
+	if len(deltas) == 1 {
+		return Delta{firstChildType, &deltaFirstChild{deltas[0]}}
+	}
+
+	return Delta{firstChildType, &deltaFirstChild{List(deltas...)}}
 }
 
 // LastChild applies provided deltas to the last child of matching elements
 func LastChild(deltas ...Delta) Delta {
-	switch len(deltas) {
-	case 0:
+	if isEmpty(deltas) {
 		return Nil
-	case 1:
-		return Delta{lastChildType, &deltaLastChild{deltas[0]}}
-	default:
-		return Delta{lastChildType, &deltaLastChild{List(deltas...)}}
 	}
+
+	if len(deltas) == 1 {
+		return Delta{lastChildType, &deltaLastChild{deltas[0]}}
+	}
+
+	return Delta{lastChildType, &deltaLastChild{List(deltas...)}}
 }
 
 // PrevSibling applies provided deltas to the previous sibling of matching elements
 func PrevSibling(deltas ...Delta) Delta {
-	switch len(deltas) {
-	case 0:
+	if isEmpty(deltas) {
 		return Nil
-	case 1:
-		return Delta{prevSiblingType, &deltaPrevSibling{deltas[0]}}
-	default:
-		return Delta{prevSiblingType, &deltaPrevSibling{List(deltas...)}}
 	}
+
+	if len(deltas) == 1 {
+		return Delta{prevSiblingType, &deltaPrevSibling{deltas[0]}}
+	}
+
+	return Delta{prevSiblingType, &deltaPrevSibling{List(deltas...)}}
 }
 
 // NextSibling applies provided deltas to the previous sibling of matching elements
 func NextSibling(deltas ...Delta) Delta {
-	switch len(deltas) {
-	case 0:
+	if isEmpty(deltas) {
 		return Nil
-	case 1:
-		return Delta{nextSiblingType, &deltaNextSibling{deltas[0]}}
-	default:
-		return Delta{nextSiblingType, &deltaNextSibling{List(deltas...)}}
 	}
+
+	if len(deltas) == 1 {
+		return Delta{nextSiblingType, &deltaNextSibling{deltas[0]}}
+	}
+
+	return Delta{nextSiblingType, &deltaNextSibling{List(deltas...)}}
 }
 
 // Replace replaces matching elements with the provided HTML
@@ -227,8 +244,16 @@ func Call(path []string, args map[string]string) Delta {
 }
 
 // Jump discards all deltas present and future and applies the given delta to the document
-func Jump(delta Delta) Delta {
-	return Delta{jumpType, &deltaJump{delta}}
+func Jump(deltas ...Delta) Delta {
+	if isEmpty(deltas) {
+		return Nil
+	}
+
+	if len(deltas) == 1 {
+		return Delta{jumpType, &deltaJump{deltas[0]}}
+	}
+
+	return Delta{jumpType, &deltaJump{List(deltas...)}}
 }
 
 // RunSync runs the given function synchronously, applying returned delta
@@ -237,8 +262,16 @@ func RunSync(handler func() Delta) Delta {
 }
 
 // WithKey applies the given delta only if the key wasn't previously used
-func WithKey(key string, delta Delta) Delta {
-	return Delta{withKeyType, &deltaWithKey{key, delta}}
+func WithKey(key string, deltas ...Delta) Delta {
+	if isEmpty(deltas) {
+		return Nil
+	}
+
+	if len(deltas) == 1 {
+		return Delta{withKeyType, &deltaWithKey{key, deltas[0]}}
+	}
+
+	return Delta{withKeyType, &deltaWithKey{key, List(deltas...)}}
 }
 
 // ClearKey marks the given key as unused
@@ -248,14 +281,15 @@ func ClearKey(key string) Delta {
 
 // Defer applies the given deltas after applying the rest of them
 func Defer(deltas ...Delta) Delta {
-	switch len(deltas) {
-	case 0:
+	if isEmpty(deltas) {
 		return Nil
-	case 1:
-		return Delta{deferType, &deltaDefer{deltas[0]}}
-	default:
-		return Delta{deferType, &deltaDefer{List(deltas...)}}
 	}
+
+	if len(deltas) == 1 {
+		return Delta{deferType, &deltaDefer{deltas[0]}}
+	}
+
+	return Delta{deferType, &deltaDefer{List(deltas...)}}
 }
 
 // Status sets the status code of the response
