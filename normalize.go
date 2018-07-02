@@ -70,6 +70,56 @@ func normalize(c *normalizationContext, delta Delta) (nextContext *normalization
 			nextDelta = nd
 		}
 
+	case rootType:
+		nextContext, nextDelta = normalize(c, delta.delta.(*deltaRoot).delta)
+		if c.ref == nextContext.ref {
+			nextDelta = Root(nextDelta)
+		}
+
+	case selectorType:
+		d := delta.delta.(*deltaSelector)
+		nextContext, nextDelta = normalize(c, d.delta)
+		if c.ref == nextContext.ref {
+			nextDelta = d.selector.One(nextDelta)
+		}
+
+	case selectorAllType:
+		d := delta.delta.(*deltaSelectorAll)
+		nextContext, nextDelta = normalize(c, d.delta)
+		if c.ref == nextContext.ref {
+			nextDelta = d.selector.All(nextDelta)
+		}
+
+	case parentType:
+		nextContext, nextDelta = normalize(c, delta.delta.(*deltaParent).delta)
+		if c.ref == nextContext.ref {
+			nextDelta = Parent(nextDelta)
+		}
+
+	case firstChildType:
+		nextContext, nextDelta = normalize(c, delta.delta.(*deltaFirstChild).delta)
+		if c.ref == nextContext.ref {
+			nextDelta = FirstChild(nextDelta)
+		}
+
+	case lastChildType:
+		nextContext, nextDelta = normalize(c, delta.delta.(*deltaLastChild).delta)
+		if c.ref == nextContext.ref {
+			nextDelta = LastChild(nextDelta)
+		}
+
+	case prevSiblingType:
+		nextContext, nextDelta = normalize(c, delta.delta.(*deltaPrevSibling).delta)
+		if c.ref == nextContext.ref {
+			nextDelta = PrevSibling(nextDelta)
+		}
+
+	case nextSiblingType:
+		nextContext, nextDelta = normalize(c, delta.delta.(*deltaNextSibling).delta)
+		if c.ref == nextContext.ref {
+			nextDelta = NextSibling(nextDelta)
+		}
+
 	}
 
 	return
