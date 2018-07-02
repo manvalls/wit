@@ -9,12 +9,26 @@ import (
 
 // List groups a list of deltas together
 func List(deltas ...Delta) Delta {
-	return Delta{sliceType, &deltaSlice{deltas}}
+	switch len(deltas) {
+	case 0:
+		return Nil
+	case 1:
+		return deltas[0]
+	default:
+		return Delta{sliceType, &deltaSlice{deltas}}
+	}
 }
 
 // Root applies given deltas to the root of the document
 func Root(deltas ...Delta) Delta {
-	return Delta{rootType, &deltaRoot{List(deltas...)}}
+	switch len(deltas) {
+	case 0:
+		return Nil
+	case 1:
+		return Delta{rootType, &deltaRoot{deltas[0]}}
+	default:
+		return Delta{rootType, &deltaRoot{List(deltas...)}}
+	}
 }
 
 // Run runs the given function under the given context, returning a delta
@@ -69,27 +83,62 @@ func Text(txt string) Delta {
 
 // Parent applies provided deltas to the parent of matching elements
 func Parent(deltas ...Delta) Delta {
-	return Delta{parentType, &deltaParent{List(deltas...)}}
+	switch len(deltas) {
+	case 0:
+		return Nil
+	case 1:
+		return Delta{parentType, &deltaParent{deltas[0]}}
+	default:
+		return Delta{parentType, &deltaParent{List(deltas...)}}
+	}
 }
 
 // FirstChild applies provided deltas to the first child of matching elements
 func FirstChild(deltas ...Delta) Delta {
-	return Delta{firstChildType, &deltaFirstChild{List(deltas...)}}
+	switch len(deltas) {
+	case 0:
+		return Nil
+	case 1:
+		return Delta{firstChildType, &deltaFirstChild{deltas[0]}}
+	default:
+		return Delta{firstChildType, &deltaFirstChild{List(deltas...)}}
+	}
 }
 
 // LastChild applies provided deltas to the last child of matching elements
 func LastChild(deltas ...Delta) Delta {
-	return Delta{lastChildType, &deltaLastChild{List(deltas...)}}
+	switch len(deltas) {
+	case 0:
+		return Nil
+	case 1:
+		return Delta{lastChildType, &deltaLastChild{deltas[0]}}
+	default:
+		return Delta{lastChildType, &deltaLastChild{List(deltas...)}}
+	}
 }
 
 // PrevSibling applies provided deltas to the previous sibling of matching elements
 func PrevSibling(deltas ...Delta) Delta {
-	return Delta{prevSiblingType, &deltaPrevSibling{List(deltas...)}}
+	switch len(deltas) {
+	case 0:
+		return Nil
+	case 1:
+		return Delta{prevSiblingType, &deltaPrevSibling{deltas[0]}}
+	default:
+		return Delta{prevSiblingType, &deltaPrevSibling{List(deltas...)}}
+	}
 }
 
 // NextSibling applies provided deltas to the previous sibling of matching elements
 func NextSibling(deltas ...Delta) Delta {
-	return Delta{nextSiblingType, &deltaNextSibling{List(deltas...)}}
+	switch len(deltas) {
+	case 0:
+		return Nil
+	case 1:
+		return Delta{nextSiblingType, &deltaNextSibling{deltas[0]}}
+	default:
+		return Delta{nextSiblingType, &deltaNextSibling{List(deltas...)}}
+	}
 }
 
 // Replace replaces matching elements with the provided HTML
@@ -199,7 +248,14 @@ func ClearKey(key string) Delta {
 
 // Defer applies the given deltas after applying the rest of them
 func Defer(deltas ...Delta) Delta {
-	return Delta{deferType, &deltaDefer{List(deltas...)}}
+	switch len(deltas) {
+	case 0:
+		return Nil
+	case 1:
+		return Delta{deferType, &deltaDefer{deltas[0]}}
+	default:
+		return Delta{deferType, &deltaDefer{List(deltas...)}}
+	}
 }
 
 // Status sets the status code of the response
