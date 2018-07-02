@@ -24,14 +24,16 @@ func normalize(c *normalizationContext, delta Delta) (nextContext *normalization
 	case sliceType:
 		var nd Delta
 		deltas := delta.delta.(*deltaSlice).deltas
-		nextDeltas := make([]Delta, len(deltas))
+		nextDeltas := make([]Delta, 0, len(deltas))
 
-		for i, childDelta := range deltas {
+		for _, childDelta := range deltas {
 			if c.ref != nextContext.ref {
 				discardDelta(childDelta)
 			} else {
 				nextContext, nd = normalize(nextContext, childDelta)
-				nextDeltas[i] = nd
+				if nd.typeID != 0 && c.ref == nextContext.ref {
+					nextDeltas = append(nextDeltas, nd)
+				}
 			}
 		}
 
@@ -54,9 +56,10 @@ func normalize(c *normalizationContext, delta Delta) (nextContext *normalization
 				discardDelta(childDelta)
 			} else {
 				nextContext, nd = normalize(nextContext, childDelta)
-				nextDeltas = append(nextDeltas, nd)
 				if c.ref != nextContext.ref {
 					cancel()
+				} else if nd.typeID != 0 {
+					nextDeltas = append(nextDeltas, nd)
 				}
 			}
 		}
