@@ -41,6 +41,32 @@ func normalize(c *normalizationContext, delta Delta) (nextContext *normalization
 			nextDelta = nd
 		}
 
+	case channelType:
+		var nd Delta
+		d := delta.delta.(*deltaChannel)
+		nextDeltas := []Delta{}
+
+		channel := d.channel
+		cancel := d.cancel
+
+		for childDelta := range channel {
+			if c.ref != nextContext.ref {
+				discardDelta(childDelta)
+			} else {
+				nextContext, nd = normalize(nextContext, childDelta)
+				nextDeltas = append(nextDeltas, nd)
+				if c.ref != nextContext.ref {
+					cancel()
+				}
+			}
+		}
+
+		if c.ref == nextContext.ref {
+			nextDelta = List(nextDeltas...)
+		} else {
+			nextDelta = nd
+		}
+
 	}
 
 	return
