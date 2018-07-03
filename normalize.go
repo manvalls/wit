@@ -15,7 +15,31 @@ func Normalize(delta Delta) Delta {
 // removing header and status information and returning it. Jumps are
 // resolved locally.
 func Clean(delta Delta) CleanDelta {
-	return CleanDelta{Delta: delta}
+	c, nextDelta := normalize(&normalizationContext{
+		ref: &normalizationRef{},
+	}, delta)
+
+	for len(c.deferred) > 0 {
+		var nd Delta
+		deferred := c.deferred
+		c.deferred = nil
+
+		for _, def := range deferred {
+			if def.ref != c.ref {
+				discardDelta(def.delta)
+			} else {
+				d := delta.delta.(*deltaDefer)
+				c, nd = normalize(c, d.delta)
+				if def.ref == c.ref {
+					d.delta = nd
+				} else {
+					nextDelta = nd
+				}
+			}
+		}
+	}
+
+	return CleanDelta{Delta: nextDelta}
 }
 
 // CleanDelta holds the result of a Clean operation
@@ -153,6 +177,12 @@ func normalize(c *normalizationContext, delta Delta) (nextContext *normalization
 	case runSyncType:
 		f := delta.delta.(*deltaRunSync).handler
 		return normalize(c, f())
+
+	case deferType:
+		c.deferred = append(c.deferred, &deltaWithRef{
+			ref:   c.ref,
+			delta: Defer(delta.delta.(*deltaDefer).delta),
+		})
 
 	}
 
