@@ -1,6 +1,9 @@
 package wit
 
-import "net/http"
+import (
+	"io"
+	"net/http"
+)
 
 // Normalize resolves the provided delta to its normalized representation. Jumps
 // are resolved locally.
@@ -22,6 +25,7 @@ type CleanDelta struct {
 	HeadersToRm  []string
 	HeadersToSet http.Header
 	HeadersToAdd http.Header
+	Answer       io.ReadCloser
 }
 
 type normalizationRef struct{}
