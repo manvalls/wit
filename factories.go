@@ -7,27 +7,23 @@ import (
 	"golang.org/x/net/html"
 )
 
-func isEmpty(deltas []Delta) bool {
+// List groups a list of deltas together
+func List(deltas ...Delta) Delta {
+	filteredDeltas := make([]Delta, 0, len(deltas))
 	for _, delta := range deltas {
 		if delta.typeID != 0 {
-			return false
+			filteredDeltas = append(filteredDeltas, delta)
 		}
 	}
 
-	return true
-}
-
-// List groups a list of deltas together
-func List(deltas ...Delta) Delta {
-	if isEmpty(deltas) {
+	switch len(filteredDeltas) {
+	case 0:
 		return Nil
-	}
-
-	if len(deltas) == 1 {
+	case 1:
 		return deltas[0]
+	default:
+		return Delta{sliceType, &deltaSlice{deltas}}
 	}
-
-	return Delta{sliceType, &deltaSlice{deltas}}
 }
 
 // Root applies given deltas to the root of the document
