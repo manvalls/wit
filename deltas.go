@@ -3,7 +3,6 @@ package wit
 import (
 	"context"
 	"io"
-	"net/http"
 )
 
 // Delta represents a document change
@@ -189,7 +188,7 @@ type deltaAddHeaders struct {
 }
 
 type deltaSetHeaders struct {
-	headers http.Header
+	headers map[string]string
 }
 
 type deltaRmHeaders struct {

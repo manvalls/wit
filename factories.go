@@ -3,7 +3,6 @@ package wit
 import (
 	"context"
 	"io"
-	"net/http"
 
 	"golang.org/x/net/html"
 )
@@ -285,7 +284,7 @@ func AddHeaders(headers map[string]string) Delta {
 }
 
 // SetHeaders sets the headers of the response
-func SetHeaders(headers http.Header) Delta {
+func SetHeaders(headers map[string]string) Delta {
 	return Delta{setHeadersType, &deltaSetHeaders{headers}}
 }
 
