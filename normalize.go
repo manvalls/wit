@@ -9,6 +9,8 @@ type normalizationRef struct{}
 
 type normalizationContext struct {
 	ref      *normalizationRef
+	keys     map[string]bool
+	baseKeys map[string]bool
 	deferred []*deltaWithRef
 }
 
@@ -124,12 +126,32 @@ func normalize(c *normalizationContext, delta Delta) (nextContext *normalization
 
 	case jumpType:
 		return normalize(&normalizationContext{
-			ref: &normalizationRef{},
+			ref:      &normalizationRef{},
+			keys:     c.baseKeys,
+			baseKeys: c.baseKeys,
 		}, delta.delta.(*deltaJump).delta)
 
 	case runSyncType:
 		f := delta.delta.(*deltaRunSync).handler
 		return normalize(c, f())
+
+	case withKeyType:
+		d := delta.delta.(*deltaWithKey)
+
+		if c.keys[d.key] {
+			discardDelta(d.delta)
+			return
+		}
+
+		c.keys[d.key] = true
+		nextContext, nextDelta = normalize(c, d.delta)
+		if c.ref == nextContext.ref {
+			nextDelta = WithKey(d.key, nextDelta)
+		}
+
+	case clearKeyType:
+		key := delta.delta.(*deltaClearKey).key
+		delete(c.keys, key)
 
 	}
 
