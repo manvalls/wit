@@ -127,6 +127,10 @@ func normalize(c *normalizationContext, delta Delta) (nextContext *normalization
 			ref: &normalizationRef{},
 		}, delta.delta.(*deltaJump).delta)
 
+	case runSyncType:
+		f := delta.delta.(*deltaRunSync).handler
+		return normalize(c, f())
+
 	}
 
 	return
