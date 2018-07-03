@@ -11,7 +11,14 @@ import (
 func List(deltas ...Delta) Delta {
 	filteredDeltas := make([]Delta, 0, len(deltas))
 	for _, delta := range deltas {
-		if delta.typeID != 0 {
+		switch delta.typeID {
+		case 0:
+		case sliceType:
+			childDeltas := delta.delta.(*deltaSlice).deltas
+			for _, childDelta := range childDeltas {
+				filteredDeltas = append(filteredDeltas, childDelta)
+			}
+		default:
 			filteredDeltas = append(filteredDeltas, delta)
 		}
 	}
