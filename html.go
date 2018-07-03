@@ -18,13 +18,12 @@ var headSelector = cascadia.MustCompile("head")
 var baseDocument, _ = html.Parse(strings.NewReader("<!DOCTYPE html><html><head></head><body></body></html>"))
 
 type htmlContext struct {
-	root            *html.Node
-	loadCSSPolyfill *html.Node
-	loadWitCall     bool
-	deferred        []*deltaWithContext
-	status          int
-	headers         http.Header
-	answer          io.ReadCloser
+	root        *html.Node
+	loadWitCall bool
+	deferred    []*deltaWithContext
+	status      int
+	headers     http.Header
+	answer      io.ReadCloser
 }
 
 type deltaWithContext struct {
