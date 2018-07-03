@@ -1,8 +1,27 @@
 package wit
 
-// Normalize resolves the provided delta to its normalized representation
-func Normalize(delta Delta) Delta {
+import "net/http"
+
+// Normalize resolves the provided delta to its normalized representation. Jumps
+// and keys are resolved locally.
+func Normalize(delta Delta, keys []string) Delta {
 	return delta
+}
+
+// Clean resolves the provided delta to its normalized representation,
+// removing header and status information and returning it. Jumps and keys are
+// resolved locally.
+func Clean(delta Delta, keys []string) CleanDelta {
+	return CleanDelta{Delta: delta}
+}
+
+// CleanDelta holds the result of a Clean operation
+type CleanDelta struct {
+	Delta        Delta
+	Status       int
+	HeadersToRm  []string
+	HeadersToSet http.Header
+	HeadersToAdd http.Header
 }
 
 type normalizationRef struct{}
