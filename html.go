@@ -456,7 +456,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 		}
 
 	case setAttrType:
-		attr := delta.delta.(*deltaAddAttr).attr
+		attr := delta.delta.(*deltaSetAttr).attr
 		for _, node := range nodes {
 			if node.Type != html.ElementNode {
 				continue
