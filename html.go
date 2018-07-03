@@ -880,7 +880,9 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 	case addHeadersType:
 		headers := delta.delta.(*deltaAddHeaders).headers
 		for key, value := range headers {
-			c.headers.Add(key, value)
+			for _, h := range value {
+				c.headers.Add(key, h)
+			}
 		}
 
 	case setHeadersType:

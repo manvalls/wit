@@ -185,7 +185,7 @@ type deltaRedirect struct {
 }
 
 type deltaAddHeaders struct {
-	headers map[string]string
+	headers http.Header
 }
 
 type deltaSetHeaders struct {

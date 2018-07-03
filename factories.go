@@ -280,7 +280,7 @@ func Redirect(location string, code int) Delta {
 }
 
 // AddHeaders adds some headers to the response
-func AddHeaders(headers map[string]string) Delta {
+func AddHeaders(headers http.Header) Delta {
 	return Delta{addHeadersType, &deltaAddHeaders{headers}}
 }
 
