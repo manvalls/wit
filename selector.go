@@ -18,28 +18,22 @@ func S(selector string) Selector {
 
 // One applies the given delta to the first matching element
 func (s Selector) One(deltas ...Delta) Delta {
-	if isEmpty(deltas) {
-		return Nil
+	d := List(deltas...)
+	if d.typeID == 0 {
+		return d
 	}
 
-	if len(deltas) == 1 {
-		return Delta{selectorType, &deltaSelector{s, deltas[0]}}
-	}
-
-	return Delta{selectorType, &deltaSelector{s, List(deltas...)}}
+	return Delta{selectorType, &deltaSelector{s, d}}
 }
 
 // All applies the given delta to all matching elements
 func (s Selector) All(deltas ...Delta) Delta {
-	if isEmpty(deltas) {
-		return Nil
+	d := List(deltas...)
+	if d.typeID == 0 {
+		return d
 	}
 
-	if len(deltas) == 1 {
-		return Delta{selectorAllType, &deltaSelectorAll{s, deltas[0]}}
-	}
-
-	return Delta{selectorAllType, &deltaSelectorAll{s, List(deltas...)}}
+	return Delta{selectorAllType, &deltaSelectorAll{s, d}}
 }
 
 type selectorInfo struct {

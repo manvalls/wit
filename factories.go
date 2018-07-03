@@ -32,15 +32,12 @@ func List(deltas ...Delta) Delta {
 
 // Root applies given deltas to the root of the document
 func Root(deltas ...Delta) Delta {
-	if isEmpty(deltas) {
-		return Nil
+	d := List(deltas...)
+	if d.typeID == 0 {
+		return d
 	}
 
-	if len(deltas) == 1 {
-		return Delta{rootType, &deltaRoot{deltas[0]}}
-	}
-
-	return Delta{rootType, &deltaRoot{List(deltas...)}}
+	return Delta{rootType, &deltaRoot{d}}
 }
 
 // Run runs the given function under the given context, returning a delta
@@ -95,67 +92,52 @@ func Text(txt string) Delta {
 
 // Parent applies provided deltas to the parent of matching elements
 func Parent(deltas ...Delta) Delta {
-	if isEmpty(deltas) {
-		return Nil
+	d := List(deltas...)
+	if d.typeID == 0 {
+		return d
 	}
 
-	if len(deltas) == 1 {
-		return Delta{parentType, &deltaParent{deltas[0]}}
-	}
-
-	return Delta{parentType, &deltaParent{List(deltas...)}}
+	return Delta{parentType, &deltaParent{d}}
 }
 
 // FirstChild applies provided deltas to the first child of matching elements
 func FirstChild(deltas ...Delta) Delta {
-	if isEmpty(deltas) {
-		return Nil
+	d := List(deltas...)
+	if d.typeID == 0 {
+		return d
 	}
 
-	if len(deltas) == 1 {
-		return Delta{firstChildType, &deltaFirstChild{deltas[0]}}
-	}
-
-	return Delta{firstChildType, &deltaFirstChild{List(deltas...)}}
+	return Delta{firstChildType, &deltaFirstChild{d}}
 }
 
 // LastChild applies provided deltas to the last child of matching elements
 func LastChild(deltas ...Delta) Delta {
-	if isEmpty(deltas) {
-		return Nil
+	d := List(deltas...)
+	if d.typeID == 0 {
+		return d
 	}
 
-	if len(deltas) == 1 {
-		return Delta{lastChildType, &deltaLastChild{deltas[0]}}
-	}
-
-	return Delta{lastChildType, &deltaLastChild{List(deltas...)}}
+	return Delta{lastChildType, &deltaLastChild{d}}
 }
 
 // PrevSibling applies provided deltas to the previous sibling of matching elements
 func PrevSibling(deltas ...Delta) Delta {
-	if isEmpty(deltas) {
-		return Nil
+	d := List(deltas...)
+	if d.typeID == 0 {
+		return d
 	}
 
-	if len(deltas) == 1 {
-		return Delta{prevSiblingType, &deltaPrevSibling{deltas[0]}}
-	}
-
-	return Delta{prevSiblingType, &deltaPrevSibling{List(deltas...)}}
+	return Delta{prevSiblingType, &deltaPrevSibling{d}}
 }
 
 // NextSibling applies provided deltas to the previous sibling of matching elements
 func NextSibling(deltas ...Delta) Delta {
-	if isEmpty(deltas) {
-		return Nil
+	d := List(deltas...)
+	if d.typeID == 0 {
+		return d
 	}
 
-	if len(deltas) == 1 {
-		return Delta{nextSiblingType, &deltaNextSibling{deltas[0]}}
-	}
-
-	return Delta{nextSiblingType, &deltaNextSibling{List(deltas...)}}
+	return Delta{nextSiblingType, &deltaNextSibling{d}}
 }
 
 // Replace replaces matching elements with the provided HTML
@@ -245,15 +227,12 @@ func Call(path []string, args map[string]string) Delta {
 
 // Jump discards all deltas present and future and applies the given delta to the document
 func Jump(deltas ...Delta) Delta {
-	if isEmpty(deltas) {
-		return Nil
+	d := List(deltas...)
+	if d.typeID == 0 {
+		return d
 	}
 
-	if len(deltas) == 1 {
-		return Delta{jumpType, &deltaJump{deltas[0]}}
-	}
-
-	return Delta{jumpType, &deltaJump{List(deltas...)}}
+	return Delta{jumpType, &deltaJump{d}}
 }
 
 // RunSync runs the given function synchronously, applying returned delta
@@ -263,15 +242,12 @@ func RunSync(handler func() Delta) Delta {
 
 // WithKey applies the given delta only if the key wasn't previously used
 func WithKey(key string, deltas ...Delta) Delta {
-	if isEmpty(deltas) {
-		return Nil
+	d := List(deltas...)
+	if d.typeID == 0 {
+		return d
 	}
 
-	if len(deltas) == 1 {
-		return Delta{withKeyType, &deltaWithKey{key, deltas[0]}}
-	}
-
-	return Delta{withKeyType, &deltaWithKey{key, List(deltas...)}}
+	return Delta{withKeyType, &deltaWithKey{key, d}}
 }
 
 // ClearKey marks the given key as unused
@@ -281,15 +257,12 @@ func ClearKey(key string) Delta {
 
 // Defer applies the given deltas after applying the rest of them
 func Defer(deltas ...Delta) Delta {
-	if isEmpty(deltas) {
-		return Nil
+	d := List(deltas...)
+	if d.typeID == 0 {
+		return d
 	}
 
-	if len(deltas) == 1 {
-		return Delta{deferType, &deltaDefer{deltas[0]}}
-	}
-
-	return Delta{deferType, &deltaDefer{List(deltas...)}}
+	return Delta{deferType, &deltaDefer{d}}
 }
 
 // Status sets the status code of the response
