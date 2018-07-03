@@ -20,7 +20,7 @@ var baseDocument, _ = html.Parse(strings.NewReader("<!DOCTYPE html><html><head><
 type htmlContext struct {
 	root            *html.Node
 	loadCSSPolyfill *html.Node
-	isWitCallLoaded bool
+	loadWitCall     bool
 	deferred        []*deltaWithContext
 	status          int
 	headers         http.Header
@@ -66,6 +66,31 @@ func WriteHTML(w http.ResponseWriter, delta Delta) {
 	}
 
 	if c.root != nil {
+		if !c.loadWitCall {
+			head := headSelector.MatchFirst(c.root)
+			if head == nil {
+				return
+			}
+
+			script := &html.Node{
+				Type:      html.ElementNode,
+				DataAtom:  atom.Script,
+				Data:      "script",
+				Namespace: "",
+			}
+
+			if head.FirstChild != nil {
+				head.InsertBefore(script, head.FirstChild)
+			} else {
+				head.AppendChild(script)
+			}
+
+			script.AppendChild(&html.Node{
+				Type: html.TextNode,
+				Data: witCall,
+			})
+		}
+
 		html.Render(w, c.root)
 	} else if c.answer != nil {
 		io.Copy(w, c.answer)
@@ -647,31 +672,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 
 	case callType:
 		d := delta.delta.(*deltaCall)
-
-		if !c.isWitCallLoaded {
-			head := headSelector.MatchFirst(c.root)
-			if head == nil {
-				return
-			}
-
-			script := &html.Node{
-				Type:      html.ElementNode,
-				DataAtom:  atom.Script,
-				Data:      "script",
-				Namespace: "",
-			}
-
-			if head.FirstChild != nil {
-				head.InsertBefore(script, head.FirstChild)
-			} else {
-				head.AppendChild(script)
-			}
-
-			script.AppendChild(&html.Node{
-				Type: html.TextNode,
-				Data: witCall,
-			})
-		}
+		c.loadWitCall = true
 
 		for _, node := range nodes {
 			if node.Type != html.ElementNode {
