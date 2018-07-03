@@ -244,21 +244,6 @@ func RunSync(handler func() Delta) Delta {
 	return Delta{runSyncType, &deltaRunSync{handler}}
 }
 
-// WithKey applies the given delta only if the key wasn't previously used
-func WithKey(key string, deltas ...Delta) Delta {
-	d := List(deltas...)
-	if d.typeID == 0 {
-		return d
-	}
-
-	return Delta{withKeyType, &deltaWithKey{key, d}}
-}
-
-// ClearKey marks the given key as unused
-func ClearKey(key string) Delta {
-	return Delta{clearKeyType, &deltaClearKey{key}}
-}
-
 // Defer applies the given deltas after applying the rest of them
 func Defer(deltas ...Delta) Delta {
 	d := List(deltas...)

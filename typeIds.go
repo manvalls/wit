@@ -43,8 +43,6 @@ const (
 
 	jumpType
 	runSyncType
-	withKeyType
-	clearKeyType
 	deferType
 
 	statusType

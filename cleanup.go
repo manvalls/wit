@@ -42,9 +42,6 @@ func discardDelta(delta Delta) {
 	case jumpType:
 		discardDelta(delta.delta.(*deltaJump).delta)
 
-	case withKeyType:
-		discardDelta(delta.delta.(*deltaWithKey).delta)
-
 	case deferType:
 		discardDelta(delta.delta.(*deltaDefer).delta)
 

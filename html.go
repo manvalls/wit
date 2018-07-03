@@ -23,7 +23,6 @@ type htmlContext struct {
 	root            *html.Node
 	loadCSSPolyfill *html.Node
 	isWitCallLoaded bool
-	keys            map[string]bool
 	deferred        []*deltaWithContext
 	status          int
 	headers         http.Header
@@ -43,7 +42,6 @@ func WriteHTML(w http.ResponseWriter, delta Delta) {
 
 	c := applyDelta(&htmlContext{
 		root:    nodes[0],
-		keys:    map[string]bool{},
 		headers: make(http.Header),
 	}, nodes, delta)
 
@@ -70,34 +68,6 @@ func WriteHTML(w http.ResponseWriter, delta Delta) {
 	}
 
 	if c.root != nil {
-		head := headSelector.MatchFirst(c.root)
-		if head != nil {
-			script := &html.Node{
-				Type:      html.ElementNode,
-				DataAtom:  atom.Script,
-				Data:      "script",
-				Namespace: "",
-			}
-
-			if head.FirstChild != nil {
-				head.InsertBefore(script, head.FirstChild)
-			} else {
-				head.AppendChild(script)
-			}
-
-			keys := make([]string, len(c.keys))
-			i := 0
-			for key := range c.keys {
-				keys[i] = key
-				i++
-			}
-
-			script.AppendChild(&html.Node{
-				Type: html.TextNode,
-				Data: "window.wit=window.wit||{};window.wit.keys=" + strSliceToJSON(keys) + ";",
-			})
-		}
-
 		html.Render(w, c.root)
 	} else if c.answer != nil {
 		io.Copy(w, c.answer)
@@ -838,28 +808,12 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 
 		return applyDelta(&htmlContext{
 			root:    childNodes[0],
-			keys:    map[string]bool{},
 			headers: make(http.Header),
 		}, childNodes, d)
 
 	case runSyncType:
 		f := delta.delta.(*deltaRunSync).handler
 		return applyDelta(c, nodes, f())
-
-	case withKeyType:
-		d := delta.delta.(*deltaWithKey)
-
-		if c.keys[d.key] {
-			discardDelta(d.delta)
-			return
-		}
-
-		c.keys[d.key] = true
-		return applyDelta(c, nodes, d.delta)
-
-	case clearKeyType:
-		key := delta.delta.(*deltaClearKey).key
-		delete(c.keys, key)
 
 	case deferType:
 		c.deferred = append(c.deferred, &deltaWithContext{
