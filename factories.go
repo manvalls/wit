@@ -209,19 +209,9 @@ func JS(url string) Delta {
 	return Delta{jsType, &deltaJS{url}}
 }
 
-// AsyncJS loads the provided script asynchronously
-func AsyncJS(url string) Delta {
-	return Delta{asyncJSType, &deltaAsyncJS{url}}
-}
-
 // CSS loads the provided script synchronously
 func CSS(url string) Delta {
 	return Delta{cssType, &deltaCSS{url}}
-}
-
-// AsyncCSS loads the provided script asynchronously
-func AsyncCSS(url string) Delta {
-	return Delta{asyncCSSType, &deltaAsyncCSS{url}}
 }
 
 // Call calls a JavaScript function with provided parameters, when it becomes available

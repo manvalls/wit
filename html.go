@@ -620,115 +620,12 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 			})
 		}
 
-	case asyncJSType:
-		url := delta.delta.(*deltaAsyncJS).url
-		head := headSelector.MatchFirst(c.root)
-
-		if head != nil {
-			head.AppendChild(&html.Node{
-				Type:      html.ElementNode,
-				DataAtom:  atom.Script,
-				Data:      "script",
-				Namespace: "",
-				Attr: []html.Attribute{
-					html.Attribute{
-						Key: "src",
-						Val: url,
-					},
-					html.Attribute{
-						Key: "async",
-					},
-				},
-			})
-		}
-
 	case cssType:
 		url := delta.delta.(*deltaCSS).url
 		head := headSelector.MatchFirst(c.root)
 
 		if head != nil {
 			head.AppendChild(&html.Node{
-				Type:      html.ElementNode,
-				DataAtom:  atom.Link,
-				Data:      "link",
-				Namespace: "",
-				Attr: []html.Attribute{
-					html.Attribute{
-						Key: "rel",
-						Val: "stylesheet",
-					},
-					html.Attribute{
-						Key: "type",
-						Val: "text/css",
-					},
-					html.Attribute{
-						Key: "href",
-						Val: url,
-					},
-				},
-			})
-		}
-
-	case asyncCSSType:
-		url := delta.delta.(*deltaAsyncCSS).url
-
-		if c.loadCSSPolyfill == nil {
-			head := headSelector.MatchFirst(c.root)
-			if head == nil {
-				return
-			}
-
-			c.loadCSSPolyfill = &html.Node{
-				Type:      html.ElementNode,
-				DataAtom:  atom.Script,
-				Data:      "script",
-				Namespace: "",
-			}
-
-			head.AppendChild(c.loadCSSPolyfill)
-
-			c.loadCSSPolyfill.AppendChild(&html.Node{
-				Type: html.TextNode,
-				Data: loadCSS,
-			})
-		}
-
-		parent := c.loadCSSPolyfill.Parent
-		if parent != nil {
-			parent.InsertBefore(&html.Node{
-				Type:      html.ElementNode,
-				DataAtom:  atom.Link,
-				Data:      "link",
-				Namespace: "",
-				Attr: []html.Attribute{
-					html.Attribute{
-						Key: "rel",
-						Val: "preload",
-					},
-					html.Attribute{
-						Key: "href",
-						Val: url,
-					},
-					html.Attribute{
-						Key: "as",
-						Val: "style",
-					},
-					html.Attribute{
-						Key: "onload",
-						Val: "this.onload=null;this.rel='stylesheet'",
-					},
-				},
-			}, c.loadCSSPolyfill)
-
-			noscript := &html.Node{
-				Type:      html.ElementNode,
-				DataAtom:  atom.Noscript,
-				Data:      "noscript",
-				Namespace: "",
-			}
-
-			parent.InsertBefore(noscript, c.loadCSSPolyfill)
-			noscript.AppendChild(&html.Node{
 				Type:      html.ElementNode,
 				DataAtom:  atom.Link,
 				Data:      "link",

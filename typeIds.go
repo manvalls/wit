@@ -35,9 +35,7 @@ const (
 	rmClassType
 
 	jsType
-	asyncJSType
 	cssType
-	asyncCSSType
 
 	callType
 
