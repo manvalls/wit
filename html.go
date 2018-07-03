@@ -145,38 +145,34 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 	case selectorType:
 		d := delta.delta.(*deltaSelector)
 		selector := d.selector.selector()
+		childNodes := make([]*html.Node, 0, len(nodes))
 
 		if selector != nil {
-			childNodes := make([]*html.Node, 0, len(nodes))
 			for _, node := range nodes {
 				m := selector.MatchFirst(node)
 				if m != nil {
 					childNodes = append(childNodes, m)
 				}
 			}
-
-			if len(childNodes) > 0 {
-				return applyDelta(c, childNodes, d.delta)
-			}
 		}
+
+		return applyDelta(c, childNodes, d.delta)
 
 	case selectorAllType:
 		d := delta.delta.(*deltaSelectorAll)
 		selector := d.selector.selector()
+		childNodes := make([]*html.Node, 0, len(nodes))
 
 		if selector != nil {
-			childNodes := make([]*html.Node, 0, len(nodes))
 			for _, node := range nodes {
 				ms := selector.MatchAll(node)
 				for _, m := range ms {
 					childNodes = append(childNodes, m)
 				}
 			}
-
-			if len(childNodes) > 0 {
-				return applyDelta(c, childNodes, d.delta)
-			}
 		}
+
+		return applyDelta(c, childNodes, d.delta)
 
 	case parentType:
 		d := delta.delta.(*deltaParent)
@@ -189,9 +185,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 			}
 		}
 
-		if len(childNodes) > 0 {
-			return applyDelta(c, childNodes, d.delta)
-		}
+		return applyDelta(c, childNodes, d.delta)
 
 	case firstChildType:
 		d := delta.delta.(*deltaFirstChild)
@@ -208,9 +202,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 			}
 		}
 
-		if len(childNodes) > 0 {
-			return applyDelta(c, childNodes, d.delta)
-		}
+		return applyDelta(c, childNodes, d.delta)
 
 	case lastChildType:
 		d := delta.delta.(*deltaLastChild)
@@ -227,9 +219,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 			}
 		}
 
-		if len(childNodes) > 0 {
-			return applyDelta(c, nodes, d.delta)
-		}
+		return applyDelta(c, nodes, d.delta)
 
 	case prevSiblingType:
 		d := delta.delta.(*deltaPrevSibling)
@@ -246,9 +236,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 			}
 		}
 
-		if len(childNodes) > 0 {
-			return applyDelta(c, childNodes, d.delta)
-		}
+		return applyDelta(c, childNodes, d.delta)
 
 	case nextSiblingType:
 		d := delta.delta.(*deltaNextSibling)
@@ -265,9 +253,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 			}
 		}
 
-		if len(childNodes) > 0 {
-			return applyDelta(c, nodes, d.delta)
-		}
+		return applyDelta(c, nodes, d.delta)
 
 	case removeType:
 
