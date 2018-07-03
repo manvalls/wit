@@ -45,6 +45,9 @@ func discardDelta(delta Delta) {
 	case deferType:
 		discardDelta(delta.delta.(*deltaDefer).delta)
 
+	case answerType:
+		delta.delta.(*deltaAnswer).reader.Close()
+
 	}
 
 }
