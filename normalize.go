@@ -5,14 +5,16 @@ func Normalize(delta Delta) Delta {
 	return delta
 }
 
+type normalizationRef struct{}
+
 type normalizationContext struct {
-	ref      *Delta
+	ref      *normalizationRef
 	deferred []*deltaWithRef
 }
 
 type deltaWithRef struct {
 	delta Delta
-	ref   *Delta
+	ref   *normalizationRef
 }
 
 func normalize(c *normalizationContext, delta Delta) (nextContext *normalizationContext, nextDelta Delta) {
@@ -119,6 +121,11 @@ func normalize(c *normalizationContext, delta Delta) (nextContext *normalization
 		if c.ref == nextContext.ref {
 			nextDelta = NextSibling(nextDelta)
 		}
+
+	case jumpType:
+		return normalize(&normalizationContext{
+			ref: &normalizationRef{},
+		}, delta.delta.(*deltaJump).delta)
 
 	}
 
