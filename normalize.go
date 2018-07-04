@@ -39,7 +39,10 @@ func Clean(delta Delta) CleanDelta {
 		}
 	}
 
-	return CleanDelta{Delta: nextDelta}
+	return CleanDelta{
+		Delta:  nextDelta,
+		Status: c.status,
+	}
 }
 
 // CleanDelta holds the result of a Clean operation
@@ -57,6 +60,7 @@ type normalizationRef struct{}
 type normalizationContext struct {
 	ref      *normalizationRef
 	deferred []*deltaWithRef
+	status   int
 }
 
 type deltaWithRef struct {
@@ -183,6 +187,9 @@ func normalize(c *normalizationContext, delta Delta) (nextContext *normalization
 			ref:   c.ref,
 			delta: Defer(delta.delta.(*deltaDefer).delta),
 		})
+
+	case statusType:
+		c.status = delta.delta.(*deltaStatus).code
 
 	}
 
