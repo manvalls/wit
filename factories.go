@@ -204,16 +204,6 @@ func RmClass(class string) Delta {
 	return Delta{rmClassType, &deltaRmClass{class}}
 }
 
-// JS loads the provided script synchronously
-func JS(url string) Delta {
-	return Delta{jsType, &deltaJS{url}}
-}
-
-// CSS loads the provided script synchronously
-func CSS(url string) Delta {
-	return Delta{cssType, &deltaCSS{url}}
-}
-
 // Call calls a JavaScript function with provided parameters, when it becomes available
 func Call(path []string, args map[string]string) Delta {
 	return Delta{callType, &deltaCall{path, args}}

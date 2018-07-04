@@ -623,52 +623,6 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 			}
 		}
 
-	case jsType:
-		url := delta.delta.(*deltaJS).url
-		head := headSelector.MatchFirst(c.root)
-
-		if head != nil {
-			head.AppendChild(&html.Node{
-				Type:      html.ElementNode,
-				DataAtom:  atom.Script,
-				Data:      "script",
-				Namespace: "",
-				Attr: []html.Attribute{
-					html.Attribute{
-						Key: "src",
-						Val: url,
-					},
-				},
-			})
-		}
-
-	case cssType:
-		url := delta.delta.(*deltaCSS).url
-		head := headSelector.MatchFirst(c.root)
-
-		if head != nil {
-			head.AppendChild(&html.Node{
-				Type:      html.ElementNode,
-				DataAtom:  atom.Link,
-				Data:      "link",
-				Namespace: "",
-				Attr: []html.Attribute{
-					html.Attribute{
-						Key: "rel",
-						Val: "stylesheet",
-					},
-					html.Attribute{
-						Key: "type",
-						Val: "text/css",
-					},
-					html.Attribute{
-						Key: "href",
-						Val: url,
-					},
-				},
-			})
-		}
-
 	case callType:
 		d := delta.delta.(*deltaCall)
 		c.loadWitCall = true

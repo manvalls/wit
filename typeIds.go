@@ -34,9 +34,6 @@ const (
 	addClassType
 	rmClassType
 
-	jsType
-	cssType
-
 	callType
 
 	jumpType
