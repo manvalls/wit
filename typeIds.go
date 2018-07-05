@@ -35,6 +35,6 @@ const (
 
 	callType
 
-	jumpType
+	errorType
 	runSyncType
 )

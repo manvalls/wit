@@ -1,8 +1,14 @@
 package wit
 
 import (
+	"io"
 	"strings"
 )
+
+// Renderer renders relevant content to a writer
+type Renderer interface {
+	Render(io.Writer) error
+}
 
 func parseStyle(style string) map[string]string {
 	styleMap := map[string]string{}

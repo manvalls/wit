@@ -39,9 +39,6 @@ func discardDelta(delta Delta) {
 	case nextSiblingType:
 		discardDelta(delta.delta.(*deltaNextSibling).delta)
 
-	case jumpType:
-		discardDelta(delta.delta.(*deltaJump).delta)
-
 	}
 
 }

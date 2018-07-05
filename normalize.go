@@ -1,41 +1,33 @@
 package wit
 
-// Normalize resolves the provided delta to its normalized representation,
-// following jumps locally
-func Normalize(delta Delta) Delta {
-	_, nextDelta := normalize(&normalizationContext{}, delta)
-	return nextDelta
-}
-
-type normalizationContext struct{}
-
-func normalize(c *normalizationContext, delta Delta) (nextContext *normalizationContext, nextDelta Delta) {
-	nextContext = c
-	nextDelta = delta
+// Normalize resolves the provided delta to its normalized representation
+func Normalize(delta Delta) (normalizedDelta Delta, err error) {
+	normalizedDelta = delta
 
 	switch delta.typeID {
 
 	case sliceType:
-		var nd Delta
 		deltas := delta.delta.(*deltaSlice).deltas
 		nextDeltas := make([]Delta, 0, len(deltas))
 
 		for _, childDelta := range deltas {
-			if c != nextContext {
+			if err != nil {
 				discardDelta(childDelta)
 			} else {
-				nextContext, nd = normalize(nextContext, childDelta)
-				if nd.typeID != 0 && c == nextContext {
+				var nd Delta
+				nd, err = Normalize(childDelta)
+				if nd.typeID != 0 && err != nil {
 					nextDeltas = append(nextDeltas, nd)
 				}
 			}
 		}
 
-		if c == nextContext {
-			nextDelta = List(nextDeltas...)
-		} else {
-			nextDelta = nd
+		if err != nil {
+			normalizedDelta = Nil
+			return
 		}
+
+		normalizedDelta = List(nextDeltas...)
 
 	case channelType:
 		var nd Delta
@@ -46,11 +38,11 @@ func normalize(c *normalizationContext, delta Delta) (nextContext *normalization
 		cancel := d.cancel
 
 		for childDelta := range channel {
-			if c != nextContext {
+			if err != nil {
 				discardDelta(childDelta)
 			} else {
-				nextContext, nd = normalize(nextContext, childDelta)
-				if c != nextContext {
+				nd, err = Normalize(childDelta)
+				if err != nil {
 					cancel()
 				} else if nd.typeID != 0 {
 					nextDeltas = append(nextDeltas, nd)
@@ -58,68 +50,70 @@ func normalize(c *normalizationContext, delta Delta) (nextContext *normalization
 			}
 		}
 
-		if c == nextContext {
-			nextDelta = List(nextDeltas...)
-		} else {
-			nextDelta = nd
+		if err != nil {
+			normalizedDelta = Nil
+			return
 		}
 
+		normalizedDelta = List(nextDeltas...)
+
 	case rootType:
-		nextContext, nextDelta = normalize(c, delta.delta.(*deltaRoot).delta)
-		if c == nextContext {
-			nextDelta = Root(nextDelta)
+		normalizedDelta, err = Normalize(delta.delta.(*deltaRoot).delta)
+		if err == nil {
+			normalizedDelta = Root(normalizedDelta)
 		}
 
 	case selectorType:
 		d := delta.delta.(*deltaSelector)
-		nextContext, nextDelta = normalize(c, d.delta)
-		if c == nextContext {
-			nextDelta = d.selector.One(nextDelta)
+		normalizedDelta, err = Normalize(d.delta)
+		if err == nil {
+			normalizedDelta = d.selector.One(normalizedDelta)
 		}
 
 	case selectorAllType:
 		d := delta.delta.(*deltaSelectorAll)
-		nextContext, nextDelta = normalize(c, d.delta)
-		if c == nextContext {
-			nextDelta = d.selector.All(nextDelta)
+		normalizedDelta, err = Normalize(d.delta)
+		if err == nil {
+			normalizedDelta = d.selector.All(normalizedDelta)
 		}
 
 	case parentType:
-		nextContext, nextDelta = normalize(c, delta.delta.(*deltaParent).delta)
-		if c == nextContext {
-			nextDelta = Parent(nextDelta)
+		normalizedDelta, err = Normalize(delta.delta.(*deltaParent).delta)
+		if err == nil {
+			normalizedDelta = Parent(normalizedDelta)
 		}
 
 	case firstChildType:
-		nextContext, nextDelta = normalize(c, delta.delta.(*deltaFirstChild).delta)
-		if c == nextContext {
-			nextDelta = FirstChild(nextDelta)
+		normalizedDelta, err = Normalize(delta.delta.(*deltaFirstChild).delta)
+		if err == nil {
+			normalizedDelta = FirstChild(normalizedDelta)
 		}
 
 	case lastChildType:
-		nextContext, nextDelta = normalize(c, delta.delta.(*deltaLastChild).delta)
-		if c == nextContext {
-			nextDelta = LastChild(nextDelta)
+		normalizedDelta, err = Normalize(delta.delta.(*deltaLastChild).delta)
+		if err == nil {
+			normalizedDelta = LastChild(normalizedDelta)
 		}
 
 	case prevSiblingType:
-		nextContext, nextDelta = normalize(c, delta.delta.(*deltaPrevSibling).delta)
-		if c == nextContext {
-			nextDelta = PrevSibling(nextDelta)
+		normalizedDelta, err = Normalize(delta.delta.(*deltaPrevSibling).delta)
+		if err == nil {
+			normalizedDelta = PrevSibling(normalizedDelta)
 		}
 
 	case nextSiblingType:
-		nextContext, nextDelta = normalize(c, delta.delta.(*deltaNextSibling).delta)
-		if c == nextContext {
-			nextDelta = NextSibling(nextDelta)
+		normalizedDelta, err = Normalize(delta.delta.(*deltaNextSibling).delta)
+		if err == nil {
+			normalizedDelta = NextSibling(normalizedDelta)
 		}
 
-	case jumpType:
-		return normalize(&normalizationContext{}, delta.delta.(*deltaJump).delta)
+	case errorType:
+		err = delta.delta.(*deltaError).err
+		normalizedDelta = Nil
 
 	case runSyncType:
 		f := delta.delta.(*deltaRunSync).handler
-		return normalize(c, f())
+		return Normalize(f())
 
 	}
 

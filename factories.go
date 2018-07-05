@@ -203,9 +203,9 @@ func Call(path []string, args map[string]string) Delta {
 	return Delta{callType, &deltaCall{path, args}}
 }
 
-// Jump discards all deltas present and future and applies the given delta to the document
-func Jump(deltas ...Delta) Delta {
-	return Delta{jumpType, &deltaJump{List(deltas...)}}
+// Error stops the delta flow and throws the given error
+func Error(err error) Delta {
+	return Delta{errorType, &deltaError{err}}
 }
 
 // RunSync runs the given function synchronously, applying returned delta

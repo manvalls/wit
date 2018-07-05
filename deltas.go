@@ -132,8 +132,8 @@ type deltaCall struct {
 
 // - Flow control
 
-type deltaJump struct {
-	delta Delta
+type deltaError struct {
+	err error
 }
 
 type deltaRunSync struct {

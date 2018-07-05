@@ -21,46 +21,53 @@ type htmlContext struct {
 	loadWitCall bool
 }
 
-// WriteHTML writes the result of applying the provided delta to an empty
-// document as formatted HTML
-func WriteHTML(w io.Writer, delta Delta) {
-	nodes := util.Clone([]*html.Node{baseDocument})
-
-	c := applyDelta(&htmlContext{
-		root: nodes[0],
-	}, nodes, delta)
-
-	if !c.loadWitCall {
-		head := headSelector.MatchFirst(c.root)
-		if head == nil {
-			return
-		}
-
-		script := &html.Node{
-			Type:      html.ElementNode,
-			DataAtom:  atom.Script,
-			Data:      "script",
-			Namespace: "",
-		}
-
-		if head.FirstChild != nil {
-			head.InsertBefore(script, head.FirstChild)
-		} else {
-			head.AppendChild(script)
-		}
-
-		script.AppendChild(&html.Node{
-			Type: html.TextNode,
-			Data: witCall,
-		})
-	}
-
-	html.Render(w, c.root)
+type htmlRenderer struct {
+	root *html.Node
 }
 
-func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlContext) {
+// NewHTMLRenderer returns a new renderer which will render HTML
+func NewHTMLRenderer(delta Delta) (Renderer, error) {
+	nodes := util.Clone([]*html.Node{baseDocument})
+	c := &htmlContext{
+		root: nodes[0],
+	}
 
-	next = c
+	err := applyDelta(c, nodes, delta)
+	if err != nil {
+		return nil, err
+	}
+
+	if c.loadWitCall {
+		head := headSelector.MatchFirst(c.root)
+		if head != nil {
+			script := &html.Node{
+				Type:      html.ElementNode,
+				DataAtom:  atom.Script,
+				Data:      "script",
+				Namespace: "",
+			}
+
+			if head.FirstChild != nil {
+				head.InsertBefore(script, head.FirstChild)
+			} else {
+				head.AppendChild(script)
+			}
+
+			script.AppendChild(&html.Node{
+				Type: html.TextNode,
+				Data: witCall,
+			})
+		}
+	}
+
+	return &htmlRenderer{c.root}, nil
+}
+
+func (r *htmlRenderer) Render(w io.Writer) error {
+	return html.Render(w, r.root)
+}
+
+func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 
 	switch delta.typeID {
 
@@ -68,10 +75,10 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 		deltas := delta.delta.(*deltaSlice).deltas
 
 		for _, childDelta := range deltas {
-			if c.root != next.root {
+			if err != nil {
 				discardDelta(childDelta)
 			} else {
-				next = applyDelta(next, nodes, childDelta)
+				err = applyDelta(c, nodes, childDelta)
 			}
 		}
 
@@ -82,11 +89,11 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 		cancel := d.cancel
 
 		for childDelta := range channel {
-			if c.root != next.root {
+			if err != nil {
 				discardDelta(childDelta)
 			} else {
-				next = applyDelta(next, nodes, childDelta)
-				if c.root != next.root {
+				err = applyDelta(c, nodes, childDelta)
+				if err != nil {
 					cancel()
 				}
 			}
@@ -590,12 +597,8 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 			})
 		}
 
-	case jumpType:
-		d := delta.delta.(*deltaJump).delta
-		childNodes := util.Clone([]*html.Node{baseDocument})
-		return applyDelta(&htmlContext{
-			root: childNodes[0],
-		}, childNodes, d)
+	case errorType:
+		err = delta.delta.(*deltaError).err
 
 	case runSyncType:
 		f := delta.delta.(*deltaRunSync).handler
