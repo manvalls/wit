@@ -125,24 +125,6 @@ type deltaRmClass struct {
 	class string
 }
 
-// - Loaders
-
-type deltaJS struct {
-	url string
-}
-
-type deltaAsyncJS struct {
-	url string
-}
-
-type deltaCSS struct {
-	url string
-}
-
-type deltaAsyncCSS struct {
-	url string
-}
-
 // - External scripts
 
 type deltaCall struct {
@@ -160,19 +142,10 @@ type deltaRunSync struct {
 	handler func() Delta
 }
 
-type deltaClearKey struct {
-	key string
-}
-
 // - Low level request changes
 
 type deltaStatus struct {
 	code int
-}
-
-type deltaRedirect struct {
-	location string
-	code     int
 }
 
 type deltaAddHeaders struct {
