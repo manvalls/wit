@@ -37,10 +37,4 @@ const (
 
 	jumpType
 	runSyncType
-
-	statusType
-	addHeadersType
-	setHeadersType
-	rmHeadersType
-	answerType
 )

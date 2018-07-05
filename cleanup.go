@@ -42,9 +42,6 @@ func discardDelta(delta Delta) {
 	case jumpType:
 		discardDelta(delta.delta.(*deltaJump).delta)
 
-	case answerType:
-		delta.delta.(*deltaAnswer).reader.Close()
-
 	}
 
 }

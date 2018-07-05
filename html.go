@@ -2,7 +2,6 @@ package wit
 
 import (
 	"io"
-	"net/http"
 	"strings"
 
 	"github.com/andybalholm/cascadia"
@@ -21,60 +20,43 @@ type htmlContext struct {
 	root        *html.Node
 	loadWitCall bool
 	status      int
-	headers     http.Header
-	answer      io.ReadCloser
 }
 
 // WriteHTML writes the result of applying the provided delta to an empty
 // document as formatted HTML
-func WriteHTML(w http.ResponseWriter, delta Delta) {
+func WriteHTML(w io.Writer, delta Delta) {
 	nodes := util.Clone([]*html.Node{baseDocument})
 
 	c := applyDelta(&htmlContext{
-		root:    nodes[0],
-		headers: make(http.Header),
+		root: nodes[0],
 	}, nodes, delta)
 
-	headers := w.Header()
-	for key, value := range c.headers {
-		headers[key] = value
-	}
-
-	if c.status != 0 {
-		w.WriteHeader(c.status)
-	}
-
-	if c.root != nil {
-		if !c.loadWitCall {
-			head := headSelector.MatchFirst(c.root)
-			if head == nil {
-				return
-			}
-
-			script := &html.Node{
-				Type:      html.ElementNode,
-				DataAtom:  atom.Script,
-				Data:      "script",
-				Namespace: "",
-			}
-
-			if head.FirstChild != nil {
-				head.InsertBefore(script, head.FirstChild)
-			} else {
-				head.AppendChild(script)
-			}
-
-			script.AppendChild(&html.Node{
-				Type: html.TextNode,
-				Data: witCall,
-			})
+	if !c.loadWitCall {
+		head := headSelector.MatchFirst(c.root)
+		if head == nil {
+			return
 		}
 
-		html.Render(w, c.root)
-	} else if c.answer != nil {
-		io.Copy(w, c.answer)
-		c.answer.Close()
+		script := &html.Node{
+			Type:      html.ElementNode,
+			DataAtom:  atom.Script,
+			Data:      "script",
+			Namespace: "",
+		}
+
+		if head.FirstChild != nil {
+			head.InsertBefore(script, head.FirstChild)
+		} else {
+			head.AppendChild(script)
+		}
+
+		script.AppendChild(&html.Node{
+			Type: html.TextNode,
+			Data: witCall,
+		})
 	}
+
+	html.Render(w, c.root)
 }
 
 func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlContext) {
@@ -613,40 +595,12 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 		d := delta.delta.(*deltaJump).delta
 		childNodes := util.Clone([]*html.Node{baseDocument})
 		return applyDelta(&htmlContext{
-			root:    childNodes[0],
-			headers: make(http.Header),
+			root: childNodes[0],
 		}, childNodes, d)
 
 	case runSyncType:
 		f := delta.delta.(*deltaRunSync).handler
 		return applyDelta(c, nodes, f())
-
-	case statusType:
-		c.status = delta.delta.(*deltaStatus).code
-
-	case addHeadersType:
-		headers := delta.delta.(*deltaAddHeaders).headers
-		for key, value := range headers {
-			for _, h := range value {
-				c.headers.Add(key, h)
-			}
-		}
-
-	case setHeadersType:
-		headers := delta.delta.(*deltaSetHeaders).headers
-		for key, value := range headers {
-			c.headers[key] = value
-		}
-
-	case rmHeadersType:
-		headers := delta.delta.(*deltaRmHeaders).headers
-		for _, header := range headers {
-			c.headers.Del(header)
-		}
-
-	case answerType:
-		c.answer = delta.delta.(*deltaAnswer).reader
-		c.root = nil
 
 	}
 

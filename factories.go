@@ -3,7 +3,6 @@ package wit
 import (
 	"context"
 	"io"
-	"net/http"
 
 	"golang.org/x/net/html"
 )
@@ -217,29 +216,4 @@ func Jump(deltas ...Delta) Delta {
 // RunSync runs the given function synchronously, applying returned delta
 func RunSync(handler func() Delta) Delta {
 	return Delta{runSyncType, &deltaRunSync{handler}}
-}
-
-// Status sets the status code of the response
-func Status(statusCode int) Delta {
-	return Delta{statusType, &deltaStatus{statusCode}}
-}
-
-// AddHeaders adds some headers to the response
-func AddHeaders(headers http.Header) Delta {
-	return Delta{addHeadersType, &deltaAddHeaders{headers}}
-}
-
-// SetHeaders sets the headers of the response
-func SetHeaders(headers http.Header) Delta {
-	return Delta{setHeadersType, &deltaSetHeaders{headers}}
-}
-
-// RmHeaders removes haders from the response
-func RmHeaders(headers []string) Delta {
-	return Delta{rmHeadersType, &deltaRmHeaders{headers}}
-}
-
-// Answer discards future deltas and sends the provided raw response
-func Answer(reader io.ReadCloser) Delta {
-	return Delta{answerType, &deltaAnswer{reader}}
 }

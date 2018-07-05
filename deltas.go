@@ -2,8 +2,6 @@ package wit
 
 import (
 	"context"
-	"io"
-	"net/http"
 )
 
 // Delta represents a document change
@@ -140,26 +138,4 @@ type deltaJump struct {
 
 type deltaRunSync struct {
 	handler func() Delta
-}
-
-// - Low level request changes
-
-type deltaStatus struct {
-	code int
-}
-
-type deltaAddHeaders struct {
-	headers http.Header
-}
-
-type deltaSetHeaders struct {
-	headers http.Header
-}
-
-type deltaRmHeaders struct {
-	headers []string
-}
-
-type deltaAnswer struct {
-	reader io.ReadCloser
 }
