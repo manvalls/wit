@@ -89,11 +89,6 @@ func HTML(factory HTMLFactory) Delta {
 	return Delta{htmlType, &deltaHTML{factory}}
 }
 
-// Text sets the inner text of the matching elements
-func Text(txt string) Delta {
-	return Delta{textType, &deltaText{txt}}
-}
-
 // Parent applies provided deltas to the parent of matching elements
 func Parent(deltas ...Delta) Delta {
 	d := List(deltas...)

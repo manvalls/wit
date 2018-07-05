@@ -19,7 +19,6 @@ const (
 	clearType
 
 	htmlType
-	textType
 	replaceType
 	appendType
 	prependType

@@ -288,24 +288,6 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 			}
 		}
 
-	case textType:
-
-		text := delta.delta.(*deltaText).text
-		for _, node := range nodes {
-			if node.Type != html.ElementNode {
-				continue
-			}
-
-			for node.FirstChild != nil {
-				node.RemoveChild(node.FirstChild)
-			}
-
-			node.AppendChild(&html.Node{
-				Type: html.TextNode,
-				Data: text,
-			})
-		}
-
 	case replaceType:
 
 		childNodes := delta.delta.(*deltaReplace).factory.Nodes()
