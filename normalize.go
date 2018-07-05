@@ -12,7 +12,7 @@ func Normalize(delta Delta) (normalizedDelta Delta, err error) {
 
 		for _, childDelta := range deltas {
 			if err != nil {
-				discardDelta(childDelta)
+				Discard(childDelta)
 			} else {
 				var nd Delta
 				nd, err = Normalize(childDelta)
@@ -39,7 +39,7 @@ func Normalize(delta Delta) (normalizedDelta Delta, err error) {
 
 		for childDelta := range channel {
 			if err != nil {
-				discardDelta(childDelta)
+				Discard(childDelta)
 			} else {
 				nd, err = Normalize(childDelta)
 				if err != nil {

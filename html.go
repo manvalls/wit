@@ -76,7 +76,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 
 		for _, childDelta := range deltas {
 			if err != nil {
-				discardDelta(childDelta)
+				Discard(childDelta)
 			} else {
 				err = applyDelta(c, nodes, childDelta)
 			}
@@ -90,7 +90,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 
 		for childDelta := range channel {
 			if err != nil {
-				discardDelta(childDelta)
+				Discard(childDelta)
 			} else {
 				err = applyDelta(c, nodes, childDelta)
 				if err != nil {

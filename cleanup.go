@@ -1,13 +1,14 @@
 package wit
 
-func discardDelta(delta Delta) {
+// Discard cleans up the resources associated with the given delta
+func Discard(delta Delta) {
 
 	switch delta.typeID {
 
 	case sliceType:
 		deltas := delta.delta.(*deltaSlice).deltas
 		for _, childDelta := range deltas {
-			discardDelta(childDelta)
+			Discard(childDelta)
 		}
 
 	case channelType:
@@ -15,29 +16,29 @@ func discardDelta(delta Delta) {
 
 		d.cancel()
 		for childDelta := range d.channel {
-			discardDelta(childDelta)
+			Discard(childDelta)
 		}
 
 	case rootType:
-		discardDelta(delta.delta.(*deltaRoot).delta)
+		Discard(delta.delta.(*deltaRoot).delta)
 
 	case selectorType:
-		discardDelta(delta.delta.(*deltaSelector).delta)
+		Discard(delta.delta.(*deltaSelector).delta)
 
 	case selectorAllType:
-		discardDelta(delta.delta.(*deltaSelectorAll).delta)
+		Discard(delta.delta.(*deltaSelectorAll).delta)
 
 	case firstChildType:
-		discardDelta(delta.delta.(*deltaFirstChild).delta)
+		Discard(delta.delta.(*deltaFirstChild).delta)
 
 	case lastChildType:
-		discardDelta(delta.delta.(*deltaLastChild).delta)
+		Discard(delta.delta.(*deltaLastChild).delta)
 
 	case prevSiblingType:
-		discardDelta(delta.delta.(*deltaPrevSibling).delta)
+		Discard(delta.delta.(*deltaPrevSibling).delta)
 
 	case nextSiblingType:
-		discardDelta(delta.delta.(*deltaNextSibling).delta)
+		Discard(delta.delta.(*deltaNextSibling).delta)
 
 	}
 
