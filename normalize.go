@@ -8,7 +8,11 @@ import (
 // Normalize resolves the provided delta to its normalized representation. Jumps
 // are resolved locally.
 func Normalize(delta Delta) Delta {
-	return delta
+	_, nextDelta := normalize(&normalizationContext{
+		ref: &normalizationRef{},
+	}, delta)
+
+	return nextDelta
 }
 
 // Clean resolves the provided delta to its normalized representation,
