@@ -19,7 +19,6 @@ var baseDocument, _ = html.Parse(strings.NewReader("<!DOCTYPE html><html><head><
 type htmlContext struct {
 	root        *html.Node
 	loadWitCall bool
-	status      int
 }
 
 // WriteHTML writes the result of applying the provided delta to an empty
