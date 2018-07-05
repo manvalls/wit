@@ -20,26 +20,6 @@ func Clean(delta Delta) CleanDelta {
 		cleanDelta: &CleanDelta{},
 	}, delta)
 
-	for len(c.deferred) > 0 {
-		var nd Delta
-		deferred := c.deferred
-		c.deferred = nil
-
-		for _, def := range deferred {
-			if def.ref != c.ref {
-				discardDelta(def.delta)
-			} else {
-				d := def.delta.delta.(*deltaDefer)
-				c, nd = normalize(c, d.delta)
-				if def.ref == c.ref {
-					d.delta = nd
-				} else {
-					nextDelta = nd
-				}
-			}
-		}
-	}
-
 	c.cleanDelta.Delta = nextDelta
 	return *c.cleanDelta
 }
@@ -56,13 +36,7 @@ type normalizationRef struct{}
 
 type normalizationContext struct {
 	ref        *normalizationRef
-	deferred   []*deltaWithRef
 	cleanDelta *CleanDelta
-}
-
-type deltaWithRef struct {
-	delta Delta
-	ref   *normalizationRef
 }
 
 func normalize(c *normalizationContext, delta Delta) (nextContext *normalizationContext, nextDelta Delta) {
@@ -185,13 +159,6 @@ func normalize(c *normalizationContext, delta Delta) (nextContext *normalization
 	case runSyncType:
 		f := delta.delta.(*deltaRunSync).handler
 		return normalize(c, f())
-
-	case deferType:
-		nextDelta = Defer(delta.delta.(*deltaDefer).delta)
-		c.deferred = append(c.deferred, &deltaWithRef{
-			ref:   c.ref,
-			delta: nextDelta,
-		})
 
 	case statusType:
 		if c.cleanDelta != nil {

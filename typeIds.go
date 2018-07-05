@@ -37,7 +37,6 @@ const (
 
 	jumpType
 	runSyncType
-	deferType
 
 	statusType
 	addHeadersType

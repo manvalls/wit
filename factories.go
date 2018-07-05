@@ -219,16 +219,6 @@ func RunSync(handler func() Delta) Delta {
 	return Delta{runSyncType, &deltaRunSync{handler}}
 }
 
-// Defer applies the given deltas after applying the rest of them
-func Defer(deltas ...Delta) Delta {
-	d := List(deltas...)
-	if d.typeID == 0 {
-		return d
-	}
-
-	return Delta{deferType, &deltaDefer{d}}
-}
-
 // Status sets the status code of the response
 func Status(statusCode int) Delta {
 	return Delta{statusType, &deltaStatus{statusCode}}

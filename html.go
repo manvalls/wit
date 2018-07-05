@@ -20,16 +20,9 @@ var baseDocument, _ = html.Parse(strings.NewReader("<!DOCTYPE html><html><head><
 type htmlContext struct {
 	root        *html.Node
 	loadWitCall bool
-	deferred    []*deltaWithContext
 	status      int
 	headers     http.Header
 	answer      io.ReadCloser
-}
-
-type deltaWithContext struct {
-	delta Delta
-	root  *html.Node
-	nodes []*html.Node
 }
 
 // WriteHTML writes the result of applying the provided delta to an empty
@@ -41,19 +34,6 @@ func WriteHTML(w http.ResponseWriter, delta Delta) {
 		root:    nodes[0],
 		headers: make(http.Header),
 	}, nodes, delta)
-
-	for len(c.deferred) > 0 {
-		deferred := c.deferred
-		c.deferred = nil
-
-		for _, def := range deferred {
-			if def.root != c.root {
-				discardDelta(def.delta)
-			} else {
-				c = applyDelta(c, def.nodes, def.delta)
-			}
-		}
-	}
 
 	headers := w.Header()
 	for key, value := range c.headers {
@@ -632,11 +612,6 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 	case jumpType:
 		d := delta.delta.(*deltaJump).delta
 		childNodes := util.Clone([]*html.Node{baseDocument})
-
-		for _, def := range c.deferred {
-			discardDelta(def.delta)
-		}
-
 		return applyDelta(&htmlContext{
 			root:    childNodes[0],
 			headers: make(http.Header),
@@ -645,13 +620,6 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 	case runSyncType:
 		f := delta.delta.(*deltaRunSync).handler
 		return applyDelta(c, nodes, f())
-
-	case deferType:
-		c.deferred = append(c.deferred, &deltaWithContext{
-			root:  c.root,
-			nodes: nodes,
-			delta: delta.delta.(*deltaDefer).delta,
-		})
 
 	case statusType:
 		c.status = delta.delta.(*deltaStatus).code

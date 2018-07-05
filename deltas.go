@@ -164,10 +164,6 @@ type deltaClearKey struct {
 	key string
 }
 
-type deltaDefer struct {
-	delta Delta
-}
-
 // - Low level request changes
 
 type deltaStatus struct {
