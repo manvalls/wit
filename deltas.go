@@ -139,3 +139,8 @@ type deltaJump struct {
 type deltaRunSync struct {
 	handler func() Delta
 }
+
+// IsNil checks if the given delta has nil effect
+func IsNil(d Delta) bool {
+	return d.typeID == 0
+}
