@@ -16,7 +16,8 @@ func Normalize(delta Delta) Delta {
 // resolved locally.
 func Clean(delta Delta) CleanDelta {
 	c, nextDelta := normalize(&normalizationContext{
-		ref: &normalizationRef{},
+		ref:        &normalizationRef{},
+		cleanDelta: &CleanDelta{},
 	}, delta)
 
 	for len(c.deferred) > 0 {
@@ -39,28 +40,24 @@ func Clean(delta Delta) CleanDelta {
 		}
 	}
 
-	return CleanDelta{
-		Delta:  nextDelta,
-		Status: c.status,
-	}
+	c.cleanDelta.Delta = nextDelta
+	return *c.cleanDelta
 }
 
 // CleanDelta holds the result of a Clean operation
 type CleanDelta struct {
-	Delta        Delta
-	Status       int
-	HeadersToRm  []string
-	HeadersToSet http.Header
-	HeadersToAdd http.Header
-	Answer       io.ReadCloser
+	Delta   Delta
+	Status  int
+	Headers http.Header
+	Answer  io.ReadCloser
 }
 
 type normalizationRef struct{}
 
 type normalizationContext struct {
-	ref      *normalizationRef
-	deferred []*deltaWithRef
-	status   int
+	ref        *normalizationRef
+	deferred   []*deltaWithRef
+	cleanDelta *CleanDelta
 }
 
 type deltaWithRef struct {
@@ -174,6 +171,13 @@ func normalize(c *normalizationContext, delta Delta) (nextContext *normalization
 		}
 
 	case jumpType:
+		if c.cleanDelta != nil {
+			return normalize(&normalizationContext{
+				ref:        &normalizationRef{},
+				cleanDelta: &CleanDelta{},
+			}, delta.delta.(*deltaJump).delta)
+		}
+
 		return normalize(&normalizationContext{
 			ref: &normalizationRef{},
 		}, delta.delta.(*deltaJump).delta)
@@ -190,7 +194,46 @@ func normalize(c *normalizationContext, delta Delta) (nextContext *normalization
 		})
 
 	case statusType:
-		c.status = delta.delta.(*deltaStatus).code
+		if c.cleanDelta != nil {
+			nextDelta = Nil
+			c.cleanDelta.Status = delta.delta.(*deltaStatus).code
+		}
+
+	case addHeadersType:
+		if c.cleanDelta != nil {
+			nextDelta = Nil
+			headers := delta.delta.(*deltaAddHeaders).headers
+			for key, value := range headers {
+				for _, h := range value {
+					c.cleanDelta.Headers.Add(key, h)
+				}
+			}
+		}
+
+	case setHeadersType:
+		if c.cleanDelta != nil {
+			nextDelta = Nil
+			headers := delta.delta.(*deltaSetHeaders).headers
+			for key, value := range headers {
+				c.cleanDelta.Headers[key] = value
+			}
+		}
+
+	case rmHeadersType:
+		if c.cleanDelta != nil {
+			nextDelta = Nil
+			headers := delta.delta.(*deltaRmHeaders).headers
+			for _, header := range headers {
+				c.cleanDelta.Headers.Del(header)
+			}
+		}
+
+	case answerType:
+		if c.cleanDelta != nil {
+			nextDelta = Nil
+			c.cleanDelta.Answer = delta.delta.(*deltaAnswer).reader
+			c.ref = &normalizationRef{}
+		}
 
 	}
 
