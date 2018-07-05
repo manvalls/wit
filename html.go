@@ -674,12 +674,6 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (next *htmlCont
 	case statusType:
 		c.status = delta.delta.(*deltaStatus).code
 
-	case redirectType:
-		d := delta.delta.(*deltaRedirect)
-		c.status = d.code
-		c.headers.Set("Location", d.location)
-		c.root = nil
-
 	case addHeadersType:
 		headers := delta.delta.(*deltaAddHeaders).headers
 		for key, value := range headers {

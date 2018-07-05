@@ -41,7 +41,6 @@ const (
 	deferType
 
 	statusType
-	redirectType
 	addHeadersType
 	setHeadersType
 	rmHeadersType

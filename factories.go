@@ -239,11 +239,6 @@ func Status(statusCode int) Delta {
 	return Delta{statusType, &deltaStatus{statusCode}}
 }
 
-// Redirect discards future deltas and redirects to a different URL
-func Redirect(location string, code int) Delta {
-	return Delta{redirectType, &deltaRedirect{location, code}}
-}
-
 // AddHeaders adds some headers to the response
 func AddHeaders(headers http.Header) Delta {
 	return Delta{addHeadersType, &deltaAddHeaders{headers}}
