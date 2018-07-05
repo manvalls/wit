@@ -28,7 +28,7 @@ func Clean(delta Delta) CleanDelta {
 			if def.ref != c.ref {
 				discardDelta(def.delta)
 			} else {
-				d := delta.delta.(*deltaDefer)
+				d := def.delta.delta.(*deltaDefer)
 				c, nd = normalize(c, d.delta)
 				if def.ref == c.ref {
 					d.delta = nd
@@ -183,9 +183,10 @@ func normalize(c *normalizationContext, delta Delta) (nextContext *normalization
 		return normalize(c, f())
 
 	case deferType:
+		nextDelta = Defer(delta.delta.(*deltaDefer).delta)
 		c.deferred = append(c.deferred, &deltaWithRef{
 			ref:   c.ref,
-			delta: Defer(delta.delta.(*deltaDefer).delta),
+			delta: nextDelta,
 		})
 
 	case statusType:
