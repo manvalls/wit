@@ -30,6 +30,7 @@ type CleanDelta struct {
 	Status  int
 	Headers http.Header
 	Answer  io.ReadCloser
+	Raw     bool
 }
 
 type normalizationRef struct{}
@@ -199,6 +200,7 @@ func normalize(c *normalizationContext, delta Delta) (nextContext *normalization
 		if c.cleanDelta != nil {
 			nextDelta = Nil
 			c.cleanDelta.Answer = delta.delta.(*deltaAnswer).reader
+			c.cleanDelta.Raw = true
 			c.ref = &normalizationRef{}
 		}
 
