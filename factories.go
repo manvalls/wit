@@ -205,12 +205,7 @@ func Call(path []string, args map[string]string) Delta {
 
 // Jump discards all deltas present and future and applies the given delta to the document
 func Jump(deltas ...Delta) Delta {
-	d := List(deltas...)
-	if d.typeID == 0 {
-		return d
-	}
-
-	return Delta{jumpType, &deltaJump{d}}
+	return Delta{jumpType, &deltaJump{List(deltas...)}}
 }
 
 // RunSync runs the given function synchronously, applying returned delta
