@@ -2,7 +2,7 @@ package wit
 
 import (
 	"io"
-	"strings"
+	"strconv"
 )
 
 // Renderer renders relevant content to a writer
@@ -161,15 +161,6 @@ func buildClass(classes map[string]bool) string {
 	return class
 }
 
-func escape(str string) string {
-	return strings.Replace(
-		strings.Replace(str, "\\", "\\\\", -1),
-		"\"",
-		"\\\"",
-		-1,
-	)
-}
-
 func strSliceToJSON(arr []string) string {
 	result := "["
 
@@ -178,7 +169,7 @@ func strSliceToJSON(arr []string) string {
 			result += ","
 		}
 
-		result += "\"" + escape(str) + "\""
+		result += strconv.Quote(str)
 	}
 
 	result += "]"
@@ -194,7 +185,7 @@ func strMapToJSON(args map[string]string) string {
 			result += ","
 		}
 
-		result += "\"" + escape(key) + "\":\"" + escape(value) + "\""
+		result += strconv.Quote(key) + ":" + strconv.Quote(value)
 		i++
 	}
 
