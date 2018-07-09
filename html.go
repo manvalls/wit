@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/andybalholm/cascadia"
-	"github.com/manvalls/wit/util"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 )
@@ -27,7 +26,7 @@ type htmlRenderer struct {
 
 // NewHTMLRenderer returns a new renderer which will render HTML
 func NewHTMLRenderer(delta Delta) (Renderer, error) {
-	nodes := util.Clone([]*html.Node{baseDocument})
+	nodes := clone([]*html.Node{baseDocument})
 	c := &htmlContext{
 		root: nodes[0],
 	}
