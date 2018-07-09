@@ -187,23 +187,6 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 			return
 		}
 
-	case replaceType:
-		_, err = w.Write(append(replaceTypeString, ','))
-		if err != nil {
-			return
-		}
-
-		var result []byte
-		result, err = ioutil.ReadAll(delta.delta.(*deltaReplace).factory.HTML())
-		if err != nil {
-			return
-		}
-
-		_, err = w.Write([]byte(strconv.Quote(string(result))))
-		if err != nil {
-			return
-		}
-
 	case appendType:
 		_, err = w.Write(append(appendTypeString, ','))
 		if err != nil {

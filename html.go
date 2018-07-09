@@ -256,26 +256,6 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 			}
 		}
 
-	case replaceType:
-
-		childNodes := delta.delta.(*deltaReplace).factory.Nodes()
-		for _, node := range nodes {
-			if node.Type != html.ElementNode || node.Parent == nil {
-				continue
-			}
-
-			children := childNodes
-			if len(nodes) > 1 {
-				children = util.Clone(children)
-			}
-
-			for _, child := range children {
-				node.Parent.InsertBefore(child, node)
-			}
-
-			node.Parent.RemoveChild(node)
-		}
-
 	case appendType:
 
 		childNodes := delta.delta.(*deltaAppend).factory.Nodes()

@@ -138,11 +138,6 @@ func NextSibling(deltas ...Delta) Delta {
 	return Delta{nextSiblingType, &deltaNextSibling{d}}
 }
 
-// Replace replaces matching elements with the provided HTML
-func Replace(html HTMLFactory) Delta {
-	return Delta{replaceType, &deltaReplace{html}}
-}
-
 // Append adds the provided HTML at the end of matching elements
 func Append(html HTMLFactory) Delta {
 	return Delta{appendType, &deltaAppend{html}}

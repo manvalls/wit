@@ -22,7 +22,6 @@ const (
 	clearType
 
 	htmlType
-	replaceType
 	appendType
 	prependType
 	insertAfterType
@@ -58,7 +57,6 @@ var (
 	removeTypeString       = []byte(strconv.Itoa(removeType))
 	clearTypeString        = []byte(strconv.Itoa(clearType))
 	htmlTypeString         = []byte(strconv.Itoa(htmlType))
-	replaceTypeString      = []byte(strconv.Itoa(replaceType))
 	appendTypeString       = []byte(strconv.Itoa(appendType))
 	prependTypeString      = []byte(strconv.Itoa(prependType))
 	insertAfterTypeString  = []byte(strconv.Itoa(insertAfterType))
