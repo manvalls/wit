@@ -257,7 +257,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 				continue
 			}
 
-			children := delta.delta.(*deltaHTML).factory.Nodes(node)
+			children := delta.delta.(*deltaHTML).factory.Nodes(node.Parent)
 			for _, child := range children {
 				node.Parent.InsertBefore(child, node)
 			}
