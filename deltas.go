@@ -73,6 +73,10 @@ type deltaText struct {
 	text string
 }
 
+type deltaReplace struct {
+	factory HTMLFactory
+}
+
 type deltaAppend struct {
 	factory HTMLFactory
 }
