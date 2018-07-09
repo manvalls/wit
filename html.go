@@ -257,7 +257,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 				continue
 			}
 
-			children := delta.delta.(*deltaHTML).factory.Nodes(node.Parent)
+			children := delta.delta.(*deltaReplace).factory.Nodes(node.Parent)
 			for _, child := range children {
 				node.Parent.InsertBefore(child, node)
 			}
@@ -272,7 +272,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 				continue
 			}
 
-			children := delta.delta.(*deltaHTML).factory.Nodes(node)
+			children := delta.delta.(*deltaAppend).factory.Nodes(node)
 
 			for _, child := range children {
 				node.AppendChild(child)
@@ -286,7 +286,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 				continue
 			}
 
-			children := delta.delta.(*deltaHTML).factory.Nodes(node)
+			children := delta.delta.(*deltaPrepend).factory.Nodes(node)
 
 			if node.FirstChild != nil {
 				for _, child := range children {
@@ -307,7 +307,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 				continue
 			}
 
-			children := delta.delta.(*deltaHTML).factory.Nodes(node)
+			children := delta.delta.(*deltaInsertAfter).factory.Nodes(node)
 
 			if node.NextSibling != nil {
 				for _, child := range children {
@@ -327,7 +327,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 				continue
 			}
 
-			children := delta.delta.(*deltaHTML).factory.Nodes(node)
+			children := delta.delta.(*deltaInsertBefore).factory.Nodes(node)
 			for _, child := range children {
 				node.Parent.InsertBefore(child, node)
 			}
