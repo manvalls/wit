@@ -17,8 +17,8 @@ func (f *plainFactory) HTML() io.Reader {
 	return f.factory()
 }
 
-func (f *plainFactory) Nodes() []*html.Node {
-	nodes, err := html.ParseFragment(f.factory(), nil)
+func (f *plainFactory) Nodes(ctx *html.Node) []*html.Node {
+	nodes, err := html.ParseFragment(f.factory(), ctx)
 	if err != nil {
 		return []*html.Node{}
 	}

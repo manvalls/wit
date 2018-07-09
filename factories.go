@@ -80,7 +80,7 @@ var Clear = Delta{clearType, &deltaClear{}}
 // HTMLFactory builds HTML documents on demand
 type HTMLFactory interface {
 	HTML() io.Reader
-	Nodes() []*html.Node
+	Nodes(context *html.Node) []*html.Node
 }
 
 // HTML sets the inner HTML of the matching elements
