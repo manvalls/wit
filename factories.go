@@ -27,9 +27,9 @@ func List(deltas ...Delta) Delta {
 	case 0:
 		return Nil
 	case 1:
-		return deltas[0]
+		return filteredDeltas[0]
 	default:
-		return Delta{sliceType, &deltaSlice{deltas}}
+		return Delta{sliceType, &deltaSlice{filteredDeltas}}
 	}
 }
 
