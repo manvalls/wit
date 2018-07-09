@@ -16,7 +16,7 @@ func Normalize(delta Delta) (normalizedDelta Delta, err error) {
 			} else {
 				var nd Delta
 				nd, err = Normalize(childDelta)
-				if nd.typeID != 0 && err != nil {
+				if nd.typeID != 0 && err == nil {
 					nextDeltas = append(nextDeltas, nd)
 				}
 			}
