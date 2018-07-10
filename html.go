@@ -178,7 +178,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 			}
 		}
 
-		return applyDelta(c, nodes, d.delta)
+		return applyDelta(c, childNodes, d.delta)
 
 	case prevSiblingType:
 		d := delta.delta.(*deltaPrevSibling)
