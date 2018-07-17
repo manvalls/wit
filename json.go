@@ -34,28 +34,21 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 	switch delta.typeID {
 
 	case sliceType:
-		_, err = w.Write(append(sliceTypeString, ',', '['))
+		_, err = w.Write(append(sliceTypeString))
 		if err != nil {
 			return
 		}
 
-		for i, childDelta := range delta.delta.(*deltaSlice).deltas {
-			if i != 0 {
-				_, err = w.Write([]byte{','})
-				if err != nil {
-					return
-				}
+		for _, childDelta := range delta.delta.(*deltaSlice).deltas {
+			_, err = w.Write([]byte{','})
+			if err != nil {
+				return
 			}
 
 			err = writeDeltaJSON(w, childDelta)
 			if err != nil {
 				return
 			}
-		}
-
-		_, err = w.Write([]byte{']'})
-		if err != nil {
-			return
 		}
 
 	case rootType:

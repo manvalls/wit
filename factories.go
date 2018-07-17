@@ -28,9 +28,9 @@ func List(deltas ...Delta) Delta {
 	case 0:
 		return Nil
 	case 1:
-		return deltas[0]
+		return filteredDeltas[0]
 	default:
-		return Delta{sliceType, &deltaSlice{deltas}}
+		return Delta{sliceType, &deltaSlice{filteredDeltas}}
 	}
 }
 
@@ -81,7 +81,7 @@ var Clear = Delta{clearType, &deltaClear{}}
 // HTMLFactory builds HTML documents on demand
 type HTMLFactory interface {
 	HTML() io.Reader
-	Nodes() []*html.Node
+	Nodes(context *html.Node) []*html.Node
 }
 
 // HTML sets the inner HTML of the matching elements

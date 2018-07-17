@@ -156,6 +156,8 @@ func buildClass(classes map[string]bool) string {
 		if value {
 			class += key
 		}
+
+		i++
 	}
 
 	return class

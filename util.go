@@ -1,11 +1,10 @@
-package util
+package wit
 
 import (
 	"golang.org/x/net/html"
 )
 
-// Clone clones provided html nodes
-func Clone(nodes []*html.Node) []*html.Node {
+func clone(nodes []*html.Node) []*html.Node {
 	clones := make([]*html.Node, len(nodes))
 	cache := map[*html.Node]*html.Node{}
 

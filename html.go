@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/andybalholm/cascadia"
-	"github.com/manvalls/wit/util"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 )
@@ -27,7 +26,7 @@ type htmlRenderer struct {
 
 // NewHTMLRenderer returns a new renderer which will render HTML
 func NewHTMLRenderer(delta Delta) (Renderer, error) {
-	nodes := util.Clone([]*html.Node{baseDocument})
+	nodes := clone([]*html.Node{baseDocument})
 	c := &htmlContext{
 		root: nodes[0],
 	}
@@ -179,7 +178,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 			}
 		}
 
-		return applyDelta(c, nodes, d.delta)
+		return applyDelta(c, childNodes, d.delta)
 
 	case prevSiblingType:
 		d := delta.delta.(*deltaPrevSibling)
@@ -213,7 +212,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 			}
 		}
 
-		return applyDelta(c, nodes, d.delta)
+		return applyDelta(c, childNodes, d.delta)
 
 	case removeType:
 
@@ -236,21 +235,16 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 
 	case htmlType:
 
-		childNodes := delta.delta.(*deltaHTML).factory.Nodes()
 		for _, node := range nodes {
 			if node.Type != html.ElementNode {
 				continue
-			}
-
-			children := childNodes
-			if len(nodes) > 1 {
-				children = util.Clone(children)
 			}
 
 			for node.FirstChild != nil {
 				node.RemoveChild(node.FirstChild)
 			}
 
+			children := delta.delta.(*deltaHTML).factory.Nodes(node)
 			for _, child := range children {
 				node.AppendChild(child)
 			}
@@ -258,17 +252,12 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 
 	case replaceType:
 
-		childNodes := delta.delta.(*deltaReplace).factory.Nodes()
 		for _, node := range nodes {
 			if node.Type != html.ElementNode || node.Parent == nil {
 				continue
 			}
 
-			children := childNodes
-			if len(nodes) > 1 {
-				children = util.Clone(children)
-			}
-
+			children := delta.delta.(*deltaReplace).factory.Nodes(node.Parent)
 			for _, child := range children {
 				node.Parent.InsertBefore(child, node)
 			}
@@ -278,16 +267,12 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 
 	case appendType:
 
-		childNodes := delta.delta.(*deltaAppend).factory.Nodes()
 		for _, node := range nodes {
 			if node.Type != html.ElementNode {
 				continue
 			}
 
-			children := childNodes
-			if len(nodes) > 1 {
-				children = util.Clone(children)
-			}
+			children := delta.delta.(*deltaAppend).factory.Nodes(node)
 
 			for _, child := range children {
 				node.AppendChild(child)
@@ -296,16 +281,12 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 
 	case prependType:
 
-		childNodes := delta.delta.(*deltaPrepend).factory.Nodes()
 		for _, node := range nodes {
 			if node.Type != html.ElementNode {
 				continue
 			}
 
-			children := childNodes
-			if len(nodes) > 1 {
-				children = util.Clone(children)
-			}
+			children := delta.delta.(*deltaPrepend).factory.Nodes(node)
 
 			if node.FirstChild != nil {
 				for _, child := range children {
@@ -321,16 +302,12 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 
 	case insertAfterType:
 
-		childNodes := delta.delta.(*deltaInsertAfter).factory.Nodes()
 		for _, node := range nodes {
 			if node.Type != html.ElementNode || node.Parent == nil {
 				continue
 			}
 
-			children := childNodes
-			if len(nodes) > 1 {
-				children = util.Clone(children)
-			}
+			children := delta.delta.(*deltaInsertAfter).factory.Nodes(node)
 
 			if node.NextSibling != nil {
 				for _, child := range children {
@@ -345,17 +322,12 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 
 	case insertBeforeType:
 
-		childNodes := delta.delta.(*deltaInsertBefore).factory.Nodes()
 		for _, node := range nodes {
 			if node.Type != html.ElementNode || node.Parent == nil {
 				continue
 			}
 
-			children := childNodes
-			if len(nodes) > 1 {
-				children = util.Clone(children)
-			}
-
+			children := delta.delta.(*deltaInsertBefore).factory.Nodes(node)
 			for _, child := range children {
 				node.Parent.InsertBefore(child, node)
 			}
