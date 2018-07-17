@@ -2,6 +2,7 @@ package wit
 
 import (
 	"context"
+	"errors"
 	"io"
 
 	"golang.org/x/net/html"
@@ -212,3 +213,9 @@ func Error(err error) Delta {
 func RunSync(handler func() Delta) Delta {
 	return Delta{runSyncType, &deltaRunSync{handler}}
 }
+
+// ErrEnd is a generic error used to signal that the normal flow should be stopped
+var ErrEnd = errors.New("Delta flow was ended")
+
+// End throws the ErrEnd error
+var End = Error(ErrEnd)
