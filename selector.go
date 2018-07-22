@@ -16,6 +16,12 @@ func S(selector string) Selector {
 	return Selector{&selectorInfo{selector, sync.Mutex{}, nil}}
 }
 
+// Head matches the head element
+var Head = S("head")
+
+// Body matches the body element
+var Body = S("body")
+
 // One applies the given delta to the first matching element
 func (s Selector) One(deltas ...Delta) Delta {
 	d := List(deltas...)
