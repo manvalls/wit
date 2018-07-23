@@ -166,6 +166,10 @@ func InsertBefore(html HTMLFactory) Delta {
 
 // AddAttr adds the provided attributes to the matching elements
 func AddAttr(attr map[string]string) Delta {
+	if len(attr) == 0 {
+		return Nil
+	}
+
 	return Delta{addAttrType, &deltaAddAttr{attr}}
 }
 
@@ -176,16 +180,28 @@ func SetAttr(attr map[string]string) Delta {
 
 // RmAttr removes the provided attributes from the matching elements
 func RmAttr(attrs ...string) Delta {
+	if len(attrs) == 0 {
+		return Nil
+	}
+
 	return Delta{rmAttrType, &deltaRmAttr{attrs}}
 }
 
 // AddStyles adds the provided styles to the matching elements
 func AddStyles(styles map[string]string) Delta {
+	if len(styles) == 0 {
+		return Nil
+	}
+
 	return Delta{addStylesType, &deltaAddStyles{styles}}
 }
 
 // RmStyles removes the provided styles from the matching elements
 func RmStyles(styles ...string) Delta {
+	if len(styles) == 0 {
+		return Nil
+	}
+
 	return Delta{rmStylesType, &deltaRmStyles{styles}}
 }
 
