@@ -165,6 +165,13 @@ func buildClass(classes map[string]bool) string {
 
 func strSliceToJSON(arr []string) string {
 	result := "["
+	result += strSliceToCSV(arr)
+	result += "]"
+	return result
+}
+
+func strSliceToCSV(arr []string) string {
+	result := ""
 
 	for i, str := range arr {
 		if i != 0 {
@@ -174,7 +181,6 @@ func strSliceToJSON(arr []string) string {
 		result += strconv.Quote(str)
 	}
 
-	result += "]"
 	return result
 }
 

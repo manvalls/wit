@@ -315,7 +315,7 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 			return
 		}
 
-		_, err = w.Write([]byte(strSliceToJSON(delta.delta.(*deltaRmAttr).attr)))
+		_, err = w.Write([]byte(strSliceToCSV(delta.delta.(*deltaRmAttr).attr)))
 		if err != nil {
 			return
 		}
@@ -337,7 +337,7 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 			return
 		}
 
-		_, err = w.Write([]byte(strSliceToJSON(delta.delta.(*deltaRmStyles).styles)))
+		_, err = w.Write([]byte(strSliceToCSV(delta.delta.(*deltaRmStyles).styles)))
 		if err != nil {
 			return
 		}
