@@ -24,6 +24,28 @@ func (r *jsonRenderer) Render(w io.Writer) error {
 	return writeDeltaJSON(w, r.delta)
 }
 
+func writeListOrDelta(w io.Writer, delta Delta) (err error) {
+	if delta.typeID == sliceType {
+		for i, childDelta := range delta.delta.(*deltaSlice).deltas {
+			if i != 0 {
+				_, err = w.Write([]byte{','})
+				if err != nil {
+					return
+				}
+			}
+
+			err = writeDeltaJSON(w, childDelta)
+			if err != nil {
+				return
+			}
+		}
+
+		return
+	}
+
+	return writeDeltaJSON(w, delta)
+}
+
 func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 
 	_, err = w.Write([]byte{'['})
@@ -57,7 +79,7 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 			return
 		}
 
-		err = writeDeltaJSON(w, delta.delta.(*deltaRoot).delta)
+		err = writeListOrDelta(w, delta.delta.(*deltaRoot).delta)
 		if err != nil {
 			return
 		}
@@ -74,7 +96,7 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 			return
 		}
 
-		err = writeDeltaJSON(w, d.delta)
+		err = writeListOrDelta(w, d.delta)
 		if err != nil {
 			return
 		}
@@ -91,7 +113,7 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 			return
 		}
 
-		err = writeDeltaJSON(w, d.delta)
+		err = writeListOrDelta(w, d.delta)
 		if err != nil {
 			return
 		}
@@ -102,7 +124,7 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 			return
 		}
 
-		err = writeDeltaJSON(w, delta.delta.(*deltaParent).delta)
+		err = writeListOrDelta(w, delta.delta.(*deltaParent).delta)
 		if err != nil {
 			return
 		}
@@ -113,7 +135,7 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 			return
 		}
 
-		err = writeDeltaJSON(w, delta.delta.(*deltaFirstChild).delta)
+		err = writeListOrDelta(w, delta.delta.(*deltaFirstChild).delta)
 		if err != nil {
 			return
 		}
@@ -124,7 +146,7 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 			return
 		}
 
-		err = writeDeltaJSON(w, delta.delta.(*deltaLastChild).delta)
+		err = writeListOrDelta(w, delta.delta.(*deltaLastChild).delta)
 		if err != nil {
 			return
 		}
@@ -135,7 +157,7 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 			return
 		}
 
-		err = writeDeltaJSON(w, delta.delta.(*deltaPrevSibling).delta)
+		err = writeListOrDelta(w, delta.delta.(*deltaPrevSibling).delta)
 		if err != nil {
 			return
 		}
@@ -146,7 +168,7 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 			return
 		}
 
-		err = writeDeltaJSON(w, delta.delta.(*deltaNextSibling).delta)
+		err = writeListOrDelta(w, delta.delta.(*deltaNextSibling).delta)
 		if err != nil {
 			return
 		}
