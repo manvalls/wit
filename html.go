@@ -108,9 +108,15 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 
 		if selector != nil {
 			for _, node := range nodes {
-				m := selector.MatchFirst(node)
-				if m != nil {
-					childNodes = append(childNodes, m)
+				child := node.FirstChild
+				for child != nil {
+					m := selector.MatchFirst(child)
+					if m != nil {
+						childNodes = append(childNodes, m)
+						break
+					}
+
+					child = child.NextSibling
 				}
 			}
 		}
@@ -124,9 +130,14 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 
 		if selector != nil {
 			for _, node := range nodes {
-				ms := selector.MatchAll(node)
-				for _, m := range ms {
-					childNodes = append(childNodes, m)
+				child := node.FirstChild
+				for child != nil {
+					ms := selector.MatchAll(node)
+					for _, m := range ms {
+						childNodes = append(childNodes, m)
+					}
+
+					child = child.NextSibling
 				}
 			}
 		}
