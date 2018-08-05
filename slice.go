@@ -2,8 +2,6 @@ package wit
 
 import (
 	"sync"
-
-	"github.com/manvalls/wit"
 )
 
 // Slice holds a slice of deltas internally
@@ -33,7 +31,7 @@ func (s Slice) Delta() Delta {
 	s.aggregator.Lock()
 	defer s.aggregator.Unlock()
 
-	delta := wit.List(s.aggregator.deltas...)
+	delta := List(s.aggregator.deltas...)
 	s.aggregator.deltas = []Delta{}
 	return delta
 }
