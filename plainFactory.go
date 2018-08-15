@@ -25,28 +25,28 @@ func (f *plainFactory) Nodes(ctx *html.Node) []*html.Node {
 	return nodes
 }
 
-// FromReaderFactory returns a plain HTMLFactory from a function expected to
+// FromReaderFactory returns a plain Factory from a function expected to
 // return valid HTML
-func FromReaderFactory(factory func() io.Reader) HTMLFactory {
+func FromReaderFactory(factory func() io.Reader) Factory {
 	return &plainFactory{factory}
 }
 
-// FromString returns a plain HTMLFactory from a string
-func FromString(html string) HTMLFactory {
+// FromString returns a plain Factory from a string
+func FromString(html string) Factory {
 	return &plainFactory{func() io.Reader {
 		return strings.NewReader(html)
 	}}
 }
 
-// FromBytes returns a plain HTMLFactory from a byte slice
-func FromBytes(html []byte) HTMLFactory {
+// FromBytes returns a plain Factory from a byte slice
+func FromBytes(html []byte) Factory {
 	return &plainFactory{func() io.Reader {
 		return bytes.NewReader(html)
 	}}
 }
 
-// FromHandler returns a plain HTMLFactory from a handler function
-func FromHandler(handler func(io.Writer)) HTMLFactory {
+// FromHandler returns a plain Factory from a handler function
+func FromHandler(handler func(io.Writer)) Factory {
 	return &plainFactory{func() io.Reader {
 		r, w := io.Pipe()
 

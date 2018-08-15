@@ -78,14 +78,14 @@ var Remove = Delta{removeType, &deltaRemove{}}
 // Clear empties matching elements
 var Clear = Delta{clearType, &deltaClear{}}
 
-// HTMLFactory builds HTML documents on demand
-type HTMLFactory interface {
+// Factory builds HTML documents on demand
+type Factory interface {
 	HTML() io.Reader
 	Nodes(context *html.Node) []*html.Node
 }
 
 // HTML sets the inner HTML of the matching elements
-func HTML(factory HTMLFactory) Delta {
+func HTML(factory Factory) Delta {
 	return Delta{htmlType, &deltaHTML{factory}}
 }
 
@@ -140,27 +140,27 @@ func NextSibling(deltas ...Delta) Delta {
 }
 
 // Replace replaces matching elements with the provided HTML
-func Replace(html HTMLFactory) Delta {
+func Replace(html Factory) Delta {
 	return Delta{replaceType, &deltaReplace{html}}
 }
 
 // Append adds the provided HTML at the end of matching elements
-func Append(html HTMLFactory) Delta {
+func Append(html Factory) Delta {
 	return Delta{appendType, &deltaAppend{html}}
 }
 
 // Prepend adds the provided HTML at the beginning of matching elements
-func Prepend(html HTMLFactory) Delta {
+func Prepend(html Factory) Delta {
 	return Delta{prependType, &deltaPrepend{html}}
 }
 
 // InsertAfter inserts the provided HTML after matching elements
-func InsertAfter(html HTMLFactory) Delta {
+func InsertAfter(html Factory) Delta {
 	return Delta{insertAfterType, &deltaInsertAfter{html}}
 }
 
 // InsertBefore inserts the provided HTML before matching elements
-func InsertBefore(html HTMLFactory) Delta {
+func InsertBefore(html Factory) Delta {
 	return Delta{insertBeforeType, &deltaInsertBefore{html}}
 }
 

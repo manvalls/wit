@@ -66,7 +66,7 @@ type deltaClear struct{}
 // - Content modifiers
 
 type deltaHTML struct {
-	factory HTMLFactory
+	factory Factory
 }
 
 type deltaText struct {
@@ -74,23 +74,23 @@ type deltaText struct {
 }
 
 type deltaReplace struct {
-	factory HTMLFactory
+	factory Factory
 }
 
 type deltaAppend struct {
-	factory HTMLFactory
+	factory Factory
 }
 
 type deltaPrepend struct {
-	factory HTMLFactory
+	factory Factory
 }
 
 type deltaInsertAfter struct {
-	factory HTMLFactory
+	factory Factory
 }
 
 type deltaInsertBefore struct {
-	factory HTMLFactory
+	factory Factory
 }
 
 // - Attributes
