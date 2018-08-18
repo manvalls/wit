@@ -1,6 +1,7 @@
 package wit
 
 import (
+	"context"
 	"sync"
 )
 
@@ -24,6 +25,11 @@ func (s Slice) Append(deltas ...Delta) {
 	s.aggregator.Lock()
 	defer s.aggregator.Unlock()
 	s.aggregator.deltas = append(s.aggregator.deltas, deltas...)
+}
+
+// RunAppend runs and appends to the internal buffer the given function
+func (s Slice) RunAppend(parentCtx context.Context, callback func(context.Context) Delta) {
+	s.Append(Run(parentCtx, callback))
 }
 
 // Delta flushes the internal buffer to the returned delta
