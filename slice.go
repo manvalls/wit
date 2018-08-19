@@ -32,6 +32,11 @@ func (s Slice) RunAppend(parentCtx context.Context, callback func(context.Contex
 	s.Append(Run(parentCtx, callback))
 }
 
+// RunAppendSync runs and appends to the internal buffer the given function synchronously
+func (s Slice) RunAppendSync(callback func() Delta) {
+	s.Append(RunSync(callback))
+}
+
 // Delta flushes the internal buffer to the returned delta
 func (s Slice) Delta() Delta {
 	s.aggregator.Lock()
