@@ -215,11 +215,6 @@ func RmClass(class string) Delta {
 	return Delta{rmClassType, &deltaRmClass{class}}
 }
 
-// Call calls a JavaScript function with provided parameters, when it becomes available
-func Call(path []string, args map[string]string) Delta {
-	return Delta{callType, &deltaCall{path, args}}
-}
-
 // Error stops the delta flow and throws the given error
 func Error(err error) Delta {
 	return Delta{errorType, &deltaError{err}}

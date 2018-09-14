@@ -364,18 +364,6 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 			return
 		}
 
-	case callType:
-		d := delta.delta.(*deltaCall)
-		_, err = w.Write(append(callTypeString, ','))
-		if err != nil {
-			return
-		}
-
-		_, err = w.Write([]byte(strSliceToJSON(d.path) + "," + strMapToJSON(d.arguments)))
-		if err != nil {
-			return
-		}
-
 	default:
 		_, err = w.Write([]byte{'0'})
 		if err != nil {

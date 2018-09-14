@@ -123,13 +123,6 @@ type deltaRmClass struct {
 	class string
 }
 
-// - External scripts
-
-type deltaCall struct {
-	path      []string
-	arguments map[string]string
-}
-
 // - Flow control
 
 type deltaError struct {

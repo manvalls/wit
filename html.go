@@ -6,18 +6,14 @@ import (
 
 	"github.com/andybalholm/cascadia"
 	"golang.org/x/net/html"
-	"golang.org/x/net/html/atom"
 )
-
-const witCall = "(function(){var a=window.wit=window.wit||{},g=[];if(!a.call){a.call=function(c,b,d){var a=window;d=d||document.scripts[document.scripts.length-1].parentNode;var e;for(e=0;e<c.length;e++){var f=a;a=a[c[e]];if(!a){g.push([c,b,d]);return}}a.call(f,b,d)};var f=a.run;a.run=function(){var c=g,b;g=[];for(b=0;b<c.length;b++)try{a.call(c[b][0],c[b][1],c[b][2])}catch(d){setTimeout(function(){throw d;},0)}f&&f()}}})();"
 
 var headSelector = cascadia.MustCompile("head")
 
 var baseDocument, _ = html.Parse(strings.NewReader("<!DOCTYPE html><html><head></head><body></body></html>"))
 
 type htmlContext struct {
-	root        *html.Node
-	loadWitCall bool
+	root *html.Node
 }
 
 type htmlRenderer struct {
@@ -34,29 +30,6 @@ func NewHTMLRenderer(delta Delta) (Renderer, error) {
 	err := applyDelta(c, nodes, delta)
 	if err != nil {
 		return nil, err
-	}
-
-	if c.loadWitCall {
-		head := headSelector.MatchFirst(c.root)
-		if head != nil {
-			script := &html.Node{
-				Type:      html.ElementNode,
-				DataAtom:  atom.Script,
-				Data:      "script",
-				Namespace: "",
-			}
-
-			if head.FirstChild != nil {
-				head.InsertBefore(script, head.FirstChild)
-			} else {
-				head.AppendChild(script)
-			}
-
-			script.AppendChild(&html.Node{
-				Type: html.TextNode,
-				Data: witCall,
-			})
-		}
 	}
 
 	return &htmlRenderer{c.root}, nil
@@ -554,30 +527,6 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 					break
 				}
 			}
-		}
-
-	case callType:
-		d := delta.delta.(*deltaCall)
-		c.loadWitCall = true
-
-		for _, node := range nodes {
-			if node.Type != html.ElementNode {
-				continue
-			}
-
-			script := &html.Node{
-				Type:      html.ElementNode,
-				DataAtom:  atom.Script,
-				Data:      "script",
-				Namespace: "",
-			}
-
-			node.AppendChild(script)
-
-			script.AppendChild(&html.Node{
-				Type: html.TextNode,
-				Data: "wit.call(" + strSliceToJSON(d.path) + "," + strMapToJSON(d.arguments) + ");",
-			})
 		}
 
 	case errorType:

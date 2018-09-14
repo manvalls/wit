@@ -36,8 +36,6 @@ const (
 	addClassType
 	rmClassType
 
-	callType
-
 	// Flow control
 
 	channelType
@@ -70,5 +68,4 @@ var (
 	rmStylesTypeString     = []byte(strconv.Itoa(rmStylesType))
 	addClassTypeString     = []byte(strconv.Itoa(addClassType))
 	rmClassTypeString      = []byte(strconv.Itoa(rmClassType))
-	callTypeString         = []byte(strconv.Itoa(callType))
 )
