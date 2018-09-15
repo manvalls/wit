@@ -46,23 +46,14 @@ func Root(deltas ...Delta) Delta {
 
 // Run runs the given function under the given context, returning a delta
 func Run(parentCtx context.Context, callback func(ctx context.Context) Delta) Delta {
-	ctx, cancel := context.WithCancel(parentCtx)
-	channel := make(chan Delta)
-
-	go func() {
-		select {
-		case channel <- callback(ctx):
-		case <-ctx.Done():
-		}
-
-		close(channel)
-	}()
-
-	return Delta{channelType, &deltaChannel{channel, cancel}}
+	return RunChannel(parentCtx, func(ctx context.Context, ch chan<- Delta) {
+		ch <- callback(ctx)
+		close(ch)
+	})
 }
 
 // RunChannel runs the given function under the given context and channel, returning a delta
-func RunChannel(parentCtx context.Context, callback func(ctx context.Context, ch chan<- Delta) Delta) Delta {
+func RunChannel(parentCtx context.Context, callback func(ctx context.Context, ch chan<- Delta)) Delta {
 	ctx, cancel := context.WithCancel(parentCtx)
 	channel := make(chan Delta)
 	go callback(ctx, channel)
