@@ -125,6 +125,10 @@ type deltaRmClass struct {
 
 // - Flow control
 
+type deltaCleanup struct {
+	handler func()
+}
+
 type deltaError struct {
 	err error
 }

@@ -5,6 +5,9 @@ func Discard(delta Delta) {
 
 	switch delta.typeID {
 
+	case cleanupType:
+		delta.delta.(*deltaCleanup).handler()
+
 	case sliceType:
 		deltas := delta.delta.(*deltaSlice).deltas
 		for _, childDelta := range deltas {

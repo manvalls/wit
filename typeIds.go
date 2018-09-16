@@ -39,6 +39,7 @@ const (
 	// Flow control
 
 	channelType
+	cleanupType
 	errorType
 	runSyncType
 )

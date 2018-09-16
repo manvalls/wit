@@ -206,6 +206,12 @@ func RmClass(class string) Delta {
 	return Delta{rmClassType, &deltaRmClass{class}}
 }
 
+// Cleanup runs the given function when the delta is discarded or
+// an error is found in a subsequent delta during normalization
+func Cleanup(handler func()) Delta {
+	return Delta{cleanupType, &deltaCleanup{handler}}
+}
+
 // Error stops the delta flow and throws the given error
 func Error(err error) Delta {
 	return Delta{errorType, &deltaError{err}}
