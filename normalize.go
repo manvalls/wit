@@ -50,6 +50,8 @@ func Normalize(delta Delta) (normalizedDelta Delta, err error) {
 			}
 		}
 
+		cancel()
+
 		if err != nil {
 			normalizedDelta = Nil
 			return

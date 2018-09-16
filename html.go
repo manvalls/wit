@@ -71,6 +71,8 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 			}
 		}
 
+		cancel()
+
 	case rootType:
 		return applyDelta(c, []*html.Node{c.root}, delta.delta.(*deltaRoot).delta)
 
