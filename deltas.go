@@ -1,9 +1,5 @@
 package wit
 
-import (
-	"context"
-)
-
 // Delta represents a document change
 type Delta struct {
 	typeID uint
@@ -14,11 +10,6 @@ type Delta struct {
 
 type deltaSlice struct {
 	deltas []Delta
-}
-
-type deltaChannel struct {
-	channel <-chan Delta
-	cancel  context.CancelFunc
 }
 
 // - Selectors
@@ -121,20 +112,6 @@ type deltaAddClass struct {
 
 type deltaRmClass struct {
 	class string
-}
-
-// - Flow control
-
-type deltaCleanup struct {
-	handler func()
-}
-
-type deltaError struct {
-	err error
-}
-
-type deltaRunSync struct {
-	handler func() Delta
 }
 
 // IsNil checks if the given delta has nil effect

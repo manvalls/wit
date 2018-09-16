@@ -1,8 +1,6 @@
 package wit
 
 import (
-	"context"
-	"errors"
 	"io"
 
 	"golang.org/x/net/html"
@@ -42,22 +40,6 @@ func Root(deltas ...Delta) Delta {
 	}
 
 	return Delta{rootType, &deltaRoot{d}}
-}
-
-// Run runs the given function under the given context, returning a delta
-func Run(parentCtx context.Context, callback func(ctx context.Context) Delta) Delta {
-	return RunChannel(parentCtx, func(ctx context.Context, ch chan<- Delta) {
-		ch <- callback(ctx)
-		close(ch)
-	})
-}
-
-// RunChannel runs the given function under the given context and channel, returning a delta
-func RunChannel(parentCtx context.Context, callback func(ctx context.Context, ch chan<- Delta)) Delta {
-	ctx, cancel := context.WithCancel(parentCtx)
-	channel := make(chan Delta)
-	go callback(ctx, channel)
-	return Delta{channelType, &deltaChannel{channel, cancel}}
 }
 
 // Nil represents an effectless delta
@@ -205,25 +187,3 @@ func AddClass(class string) Delta {
 func RmClass(class string) Delta {
 	return Delta{rmClassType, &deltaRmClass{class}}
 }
-
-// Cleanup runs the given function when the delta is discarded or
-// an error is found in a subsequent delta during normalization
-func Cleanup(handler func()) Delta {
-	return Delta{cleanupType, &deltaCleanup{handler}}
-}
-
-// Error stops the delta flow and throws the given error
-func Error(err error) Delta {
-	return Delta{errorType, &deltaError{err}}
-}
-
-// RunSync runs the given function synchronously, applying returned delta
-func RunSync(handler func() Delta) Delta {
-	return Delta{runSyncType, &deltaRunSync{handler}}
-}
-
-// ErrEnd is a generic error used to signal that the normal flow should be stopped
-var ErrEnd = errors.New("Delta flow was ended")
-
-// End throws the ErrEnd error
-var End = Error(ErrEnd)

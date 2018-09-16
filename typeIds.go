@@ -35,13 +35,6 @@ const (
 	rmStylesType
 	addClassType
 	rmClassType
-
-	// Flow control
-
-	channelType
-	cleanupType
-	errorType
-	runSyncType
 )
 
 var (

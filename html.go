@@ -21,60 +21,32 @@ type htmlRenderer struct {
 }
 
 // NewHTMLRenderer returns a new renderer which will render HTML
-func NewHTMLRenderer(delta Delta) (Renderer, error) {
+func NewHTMLRenderer(delta Delta) Renderer {
 	nodes := clone([]*html.Node{baseDocument})
 	c := &htmlContext{
 		root: nodes[0],
 	}
 
-	err := applyDelta(c, nodes, delta)
-	if err != nil {
-		return nil, err
-	}
-
-	return &htmlRenderer{c.root}, nil
+	applyDelta(c, nodes, delta)
+	return &htmlRenderer{c.root}
 }
 
 func (r *htmlRenderer) Render(w io.Writer) error {
 	return html.Render(w, r.root)
 }
 
-func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
+func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) {
 
 	switch delta.typeID {
 
 	case sliceType:
 		deltas := delta.delta.(*deltaSlice).deltas
-
 		for _, childDelta := range deltas {
-			if err != nil {
-				Discard(childDelta)
-			} else {
-				err = applyDelta(c, nodes, childDelta)
-			}
+			applyDelta(c, nodes, childDelta)
 		}
-
-	case channelType:
-		d := delta.delta.(*deltaChannel)
-
-		channel := d.channel
-		cancel := d.cancel
-
-		for childDelta := range channel {
-			if err != nil {
-				Discard(childDelta)
-			} else {
-				err = applyDelta(c, nodes, childDelta)
-				if err != nil {
-					cancel()
-				}
-			}
-		}
-
-		cancel()
 
 	case rootType:
-		return applyDelta(c, []*html.Node{c.root}, delta.delta.(*deltaRoot).delta)
+		applyDelta(c, []*html.Node{c.root}, delta.delta.(*deltaRoot).delta)
 
 	case selectorType:
 		d := delta.delta.(*deltaSelector)
@@ -96,7 +68,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 			}
 		}
 
-		return applyDelta(c, childNodes, d.delta)
+		applyDelta(c, childNodes, d.delta)
 
 	case selectorAllType:
 		d := delta.delta.(*deltaSelectorAll)
@@ -117,7 +89,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 			}
 		}
 
-		return applyDelta(c, childNodes, d.delta)
+		applyDelta(c, childNodes, d.delta)
 
 	case parentType:
 		d := delta.delta.(*deltaParent)
@@ -130,7 +102,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 			}
 		}
 
-		return applyDelta(c, childNodes, d.delta)
+		applyDelta(c, childNodes, d.delta)
 
 	case firstChildType:
 		d := delta.delta.(*deltaFirstChild)
@@ -147,7 +119,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 			}
 		}
 
-		return applyDelta(c, childNodes, d.delta)
+		applyDelta(c, childNodes, d.delta)
 
 	case lastChildType:
 		d := delta.delta.(*deltaLastChild)
@@ -164,7 +136,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 			}
 		}
 
-		return applyDelta(c, childNodes, d.delta)
+		applyDelta(c, childNodes, d.delta)
 
 	case prevSiblingType:
 		d := delta.delta.(*deltaPrevSibling)
@@ -181,7 +153,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 			}
 		}
 
-		return applyDelta(c, childNodes, d.delta)
+		applyDelta(c, childNodes, d.delta)
 
 	case nextSiblingType:
 		d := delta.delta.(*deltaNextSibling)
@@ -198,7 +170,7 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 			}
 		}
 
-		return applyDelta(c, childNodes, d.delta)
+		applyDelta(c, childNodes, d.delta)
 
 	case removeType:
 
@@ -530,13 +502,6 @@ func applyDelta(c *htmlContext, nodes []*html.Node, delta Delta) (err error) {
 				}
 			}
 		}
-
-	case errorType:
-		err = delta.delta.(*deltaError).err
-
-	case runSyncType:
-		f := delta.delta.(*deltaRunSync).handler
-		return applyDelta(c, nodes, f())
 
 	}
 
