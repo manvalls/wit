@@ -124,7 +124,7 @@ type deltaRmClass struct {
 	class string
 }
 
-// IsNil checks if the given delta has nil effect
-func IsNil(d Delta) bool {
-	return d.typeID == 0
+// IsNil checks if the given action has nil effect
+func IsNil(action Action) bool {
+	return action.Delta().typeID == 0
 }
