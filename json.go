@@ -11,8 +11,8 @@ type jsonRenderer struct {
 }
 
 // NewJSONRenderer returns a new renderer which will render JSON
-func NewJSONRenderer(delta Delta) Renderer {
-	return &jsonRenderer{delta}
+func NewJSONRenderer(action Action) Renderer {
+	return &jsonRenderer{action.Delta()}
 }
 
 func (r *jsonRenderer) Render(w io.Writer) error {

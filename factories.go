@@ -6,10 +6,12 @@ import (
 	"golang.org/x/net/html"
 )
 
-// List groups a list of deltas together
-func List(deltas ...Delta) Delta {
-	filteredDeltas := make([]Delta, 0, len(deltas))
-	for _, delta := range deltas {
+// List groups a list of actions together
+func List(actions ...Action) Action {
+	filteredDeltas := make([]Delta, 0, len(actions))
+	for _, action := range actions {
+		delta := action.Delta()
+
 		switch delta.typeID {
 		case 0:
 		case sliceType:
@@ -32,9 +34,9 @@ func List(deltas ...Delta) Delta {
 	}
 }
 
-// Root applies given deltas to the root of the document
-func Root(deltas ...Delta) Delta {
-	d := List(deltas...)
+// Root applies given actions to the root of the document
+func Root(actions ...Action) Action {
+	d := List(actions...).Delta()
 	if d.typeID == 0 {
 		return d
 	}
@@ -42,7 +44,7 @@ func Root(deltas ...Delta) Delta {
 	return Delta{rootType, &deltaRoot{d}}
 }
 
-// Nil represents an effectless delta
+// Nil represents an effectless action
 var Nil = Delta{}
 
 // Remove removes from the document matching elements
@@ -58,13 +60,13 @@ type Factory interface {
 }
 
 // HTML sets the inner HTML of the matching elements
-func HTML(factory Factory) Delta {
+func HTML(factory Factory) Action {
 	return Delta{htmlType, &deltaHTML{factory}}
 }
 
-// Parent applies provided deltas to the parent of matching elements
-func Parent(deltas ...Delta) Delta {
-	d := List(deltas...)
+// Parent applies provided actions to the parent of matching elements
+func Parent(actions ...Action) Action {
+	d := List(actions...).Delta()
 	if d.typeID == 0 {
 		return d
 	}
@@ -72,9 +74,9 @@ func Parent(deltas ...Delta) Delta {
 	return Delta{parentType, &deltaParent{d}}
 }
 
-// FirstChild applies provided deltas to the first child of matching elements
-func FirstChild(deltas ...Delta) Delta {
-	d := List(deltas...)
+// FirstChild applies provided actions to the first child of matching elements
+func FirstChild(actions ...Action) Action {
+	d := List(actions...).Delta()
 	if d.typeID == 0 {
 		return d
 	}
@@ -82,9 +84,9 @@ func FirstChild(deltas ...Delta) Delta {
 	return Delta{firstChildType, &deltaFirstChild{d}}
 }
 
-// LastChild applies provided deltas to the last child of matching elements
-func LastChild(deltas ...Delta) Delta {
-	d := List(deltas...)
+// LastChild applies provided actions to the last child of matching elements
+func LastChild(actions ...Action) Action {
+	d := List(actions...).Delta()
 	if d.typeID == 0 {
 		return d
 	}
@@ -92,9 +94,9 @@ func LastChild(deltas ...Delta) Delta {
 	return Delta{lastChildType, &deltaLastChild{d}}
 }
 
-// PrevSibling applies provided deltas to the previous sibling of matching elements
-func PrevSibling(deltas ...Delta) Delta {
-	d := List(deltas...)
+// PrevSibling applies provided actions to the previous sibling of matching elements
+func PrevSibling(actions ...Action) Action {
+	d := List(actions...).Delta()
 	if d.typeID == 0 {
 		return d
 	}
@@ -102,9 +104,9 @@ func PrevSibling(deltas ...Delta) Delta {
 	return Delta{prevSiblingType, &deltaPrevSibling{d}}
 }
 
-// NextSibling applies provided deltas to the previous sibling of matching elements
-func NextSibling(deltas ...Delta) Delta {
-	d := List(deltas...)
+// NextSibling applies provided actions to the previous sibling of matching elements
+func NextSibling(actions ...Action) Action {
+	d := List(actions...).Delta()
 	if d.typeID == 0 {
 		return d
 	}
@@ -113,32 +115,32 @@ func NextSibling(deltas ...Delta) Delta {
 }
 
 // Replace replaces matching elements with the provided HTML
-func Replace(html Factory) Delta {
+func Replace(html Factory) Action {
 	return Delta{replaceType, &deltaReplace{html}}
 }
 
 // Append adds the provided HTML at the end of matching elements
-func Append(html Factory) Delta {
+func Append(html Factory) Action {
 	return Delta{appendType, &deltaAppend{html}}
 }
 
 // Prepend adds the provided HTML at the beginning of matching elements
-func Prepend(html Factory) Delta {
+func Prepend(html Factory) Action {
 	return Delta{prependType, &deltaPrepend{html}}
 }
 
 // InsertAfter inserts the provided HTML after matching elements
-func InsertAfter(html Factory) Delta {
+func InsertAfter(html Factory) Action {
 	return Delta{insertAfterType, &deltaInsertAfter{html}}
 }
 
 // InsertBefore inserts the provided HTML before matching elements
-func InsertBefore(html Factory) Delta {
+func InsertBefore(html Factory) Action {
 	return Delta{insertBeforeType, &deltaInsertBefore{html}}
 }
 
 // AddAttr adds the provided attributes to the matching elements
-func AddAttr(attr map[string]string) Delta {
+func AddAttr(attr map[string]string) Action {
 	if len(attr) == 0 {
 		return Nil
 	}
@@ -147,12 +149,12 @@ func AddAttr(attr map[string]string) Delta {
 }
 
 // SetAttr sets the attributes of the matching elements
-func SetAttr(attr map[string]string) Delta {
+func SetAttr(attr map[string]string) Action {
 	return Delta{setAttrType, &deltaSetAttr{attr}}
 }
 
 // RmAttr removes the provided attributes from the matching elements
-func RmAttr(attrs ...string) Delta {
+func RmAttr(attrs ...string) Action {
 	if len(attrs) == 0 {
 		return Nil
 	}
@@ -161,7 +163,7 @@ func RmAttr(attrs ...string) Delta {
 }
 
 // AddStyles adds the provided styles to the matching elements
-func AddStyles(styles map[string]string) Delta {
+func AddStyles(styles map[string]string) Action {
 	if len(styles) == 0 {
 		return Nil
 	}
@@ -170,7 +172,7 @@ func AddStyles(styles map[string]string) Delta {
 }
 
 // RmStyles removes the provided styles from the matching elements
-func RmStyles(styles ...string) Delta {
+func RmStyles(styles ...string) Action {
 	if len(styles) == 0 {
 		return Nil
 	}
@@ -179,11 +181,11 @@ func RmStyles(styles ...string) Delta {
 }
 
 // AddClass adds the provided class to the matching elements
-func AddClass(class string) Delta {
+func AddClass(class string) Action {
 	return Delta{addClassType, &deltaAddClass{class}}
 }
 
 // RmClass adds the provided class to the matching elements
-func RmClass(class string) Delta {
+func RmClass(class string) Action {
 	return Delta{rmClassType, &deltaRmClass{class}}
 }

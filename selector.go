@@ -22,9 +22,9 @@ var Head = S("head")
 // Body matches the body element
 var Body = S("body")
 
-// One applies the given delta to the first matching element
-func (s Selector) One(deltas ...Delta) Delta {
-	d := List(deltas...)
+// One applies the given actions to the first matching element
+func (s Selector) One(actions ...Action) Action {
+	d := List(actions...).Delta()
 	if d.typeID == 0 {
 		return d
 	}
@@ -32,9 +32,9 @@ func (s Selector) One(deltas ...Delta) Delta {
 	return Delta{selectorType, &deltaSelector{s, d}}
 }
 
-// All applies the given delta to all matching elements
-func (s Selector) All(deltas ...Delta) Delta {
-	d := List(deltas...)
+// All applies the given actions to all matching elements
+func (s Selector) All(actions ...Action) Action {
+	d := List(actions...).Delta()
 	if d.typeID == 0 {
 		return d
 	}

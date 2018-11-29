@@ -6,6 +6,16 @@ type Delta struct {
 	delta  interface{}
 }
 
+// Action encapsulates a delta
+type Action interface {
+	Delta() Delta
+}
+
+// Delta returns this delta itself
+func (d Delta) Delta() Delta {
+	return d
+}
+
 // - Delta groups
 
 type deltaSlice struct {
