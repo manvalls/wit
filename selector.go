@@ -44,16 +44,16 @@ func (s Selector) All(actions ...Action) Action {
 
 type selectorInfo struct {
 	selectorText string
-	sync.Mutex
-	cascadia.Selector
+	mutex        sync.Mutex
+	sel          cascadia.Selector
 }
 
 func (s *selectorInfo) selector() cascadia.Selector {
-	s.Lock()
-	defer s.Unlock()
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 
-	if s.Selector != nil {
-		return s.Selector
+	if s.sel != nil {
+		return s.sel
 	}
 
 	selector, err := cascadia.Compile(s.selectorText)
@@ -61,6 +61,6 @@ func (s *selectorInfo) selector() cascadia.Selector {
 		return nil
 	}
 
-	s.Selector = selector
+	s.sel = selector
 	return selector
 }
