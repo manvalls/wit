@@ -7,16 +7,20 @@ import (
 )
 
 type jsonRenderer struct {
-	delta Delta
+	action Action
 }
 
 // NewJSONRenderer returns a new renderer which will render JSON
 func NewJSONRenderer(action Action) Renderer {
-	return &jsonRenderer{action.Delta()}
+	return &jsonRenderer{action}
 }
 
 func (r *jsonRenderer) Render(w io.Writer) error {
-	return writeDeltaJSON(w, r.delta)
+	if IsNil(r.action) {
+		return writeDeltaJSON(w, Nil)
+	}
+
+	return writeDeltaJSON(w, r.action.Delta())
 }
 
 func writeList(w io.Writer, deltas []Delta) (err error) {

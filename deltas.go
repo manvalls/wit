@@ -27,5 +27,5 @@ type deltaInfo struct {
 
 // IsNil checks if the given action has nil effect
 func IsNil(action Action) bool {
-	return action.Delta().typeID == 0
+	return action == nil || action.Delta().typeID == 0
 }

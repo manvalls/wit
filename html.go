@@ -27,7 +27,10 @@ func NewHTMLRenderer(action Action) Renderer {
 		root: nodes[0],
 	}
 
-	applyDelta(c, nodes, action.Delta())
+	if !IsNil(action) {
+		applyDelta(c, nodes, action.Delta())
+	}
+
 	return &htmlRenderer{c.root}
 }
 

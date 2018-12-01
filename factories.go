@@ -9,17 +9,18 @@ import (
 func extractDeltas(actions []Action) []Delta {
 	filteredDeltas := make([]Delta, 0, len(actions))
 	for _, action := range actions {
-		delta := action.Delta()
+		if !IsNil(action) {
+			delta := action.Delta()
 
-		switch delta.typeID {
-		case 0:
-		case sliceType:
-			childDeltas := delta.info.deltas
-			for _, childDelta := range childDeltas {
-				filteredDeltas = append(filteredDeltas, childDelta)
+			switch delta.typeID {
+			case sliceType:
+				childDeltas := delta.info.deltas
+				for _, childDelta := range childDeltas {
+					filteredDeltas = append(filteredDeltas, childDelta)
+				}
+			default:
+				filteredDeltas = append(filteredDeltas, delta)
 			}
-		default:
-			filteredDeltas = append(filteredDeltas, delta)
 		}
 	}
 
