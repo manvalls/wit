@@ -17,7 +17,7 @@ func NewJSONRenderer(action Action) Renderer {
 
 func (r *jsonRenderer) Render(w io.Writer) error {
 	if IsNil(r.action) {
-		return writeDeltaJSON(w, Nil)
+		return writeDeltaJSON(w, Nil.Delta())
 	}
 
 	return writeDeltaJSON(w, r.action.Delta())

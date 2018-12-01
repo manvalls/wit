@@ -52,13 +52,13 @@ func Root(actions ...Action) Action {
 }
 
 // Nil represents an effectless action
-var Nil = Delta{}
+var Nil Action = Delta{}
 
 // Remove removes from the document matching elements
-var Remove = Delta{removeType, nil}
+var Remove Action = Delta{removeType, nil}
 
 // Clear empties matching elements
-var Clear = Delta{clearType, nil}
+var Clear Action = Delta{clearType, nil}
 
 // Factory builds HTML documents on demand
 type Factory interface {
@@ -192,7 +192,7 @@ func AddClass(class string) Action {
 	return Delta{addClassType, &deltaInfo{class: class}}
 }
 
-// RmClass adds the provided class to the matching elements
+// RmClass removes the provided class from the matching elements
 func RmClass(class string) Action {
 	return Delta{rmClassType, &deltaInfo{class: class}}
 }
