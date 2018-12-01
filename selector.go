@@ -24,22 +24,22 @@ var Body = S("body")
 
 // One applies the given actions to the first matching element
 func (s Selector) One(actions ...Action) Action {
-	d := List(actions...).Delta()
-	if d.typeID == 0 {
-		return d
+	deltas := extractDeltas(actions)
+	if len(deltas) == 0 {
+		return Nil
 	}
 
-	return Delta{selectorType, &deltaSelector{s, d}}
+	return Delta{selectorType, &deltaInfo{selector: s, deltas: deltas}}
 }
 
 // All applies the given actions to all matching elements
 func (s Selector) All(actions ...Action) Action {
-	d := List(actions...).Delta()
-	if d.typeID == 0 {
-		return d
+	deltas := extractDeltas(actions)
+	if len(deltas) == 0 {
+		return Nil
 	}
 
-	return Delta{selectorAllType, &deltaSelectorAll{s, d}}
+	return Delta{selectorAllType, &deltaInfo{selector: s, deltas: deltas}}
 }
 
 type selectorInfo struct {

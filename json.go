@@ -19,26 +19,20 @@ func (r *jsonRenderer) Render(w io.Writer) error {
 	return writeDeltaJSON(w, r.delta)
 }
 
-func writeListOrDelta(w io.Writer, delta Delta) (err error) {
-	if delta.typeID == sliceType {
-		for i, childDelta := range delta.delta.(*deltaSlice).deltas {
-			if i != 0 {
-				_, err = w.Write([]byte{','})
-				if err != nil {
-					return
-				}
-			}
-
-			err = writeDeltaJSON(w, childDelta)
-			if err != nil {
-				return
-			}
+func writeList(w io.Writer, deltas []Delta) (err error) {
+	for _, childDelta := range deltas {
+		_, err = w.Write([]byte{','})
+		if err != nil {
+			return
 		}
 
-		return
+		err = writeDeltaJSON(w, childDelta)
+		if err != nil {
+			return
+		}
 	}
 
-	return writeDeltaJSON(w, delta)
+	return
 }
 
 func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
@@ -51,119 +45,110 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 	switch delta.typeID {
 
 	case sliceType:
-		_, err = w.Write(append(sliceTypeString))
+		_, err = w.Write(sliceTypeString)
 		if err != nil {
 			return
 		}
 
-		for _, childDelta := range delta.delta.(*deltaSlice).deltas {
-			_, err = w.Write([]byte{','})
-			if err != nil {
-				return
-			}
-
-			err = writeDeltaJSON(w, childDelta)
-			if err != nil {
-				return
-			}
+		err = writeList(w, delta.info.deltas)
+		if err != nil {
+			return
 		}
 
 	case rootType:
-		_, err = w.Write(append(sliceTypeString, ','))
+		_, err = w.Write(rootTypeString)
 		if err != nil {
 			return
 		}
 
-		err = writeListOrDelta(w, delta.delta.(*deltaRoot).delta)
+		err = writeList(w, delta.info.deltas)
 		if err != nil {
 			return
 		}
 
 	case selectorType:
-		d := delta.delta.(*deltaSelector)
 		_, err = w.Write(append(selectorTypeString, ','))
 		if err != nil {
 			return
 		}
 
-		_, err = w.Write(append([]byte(strconv.Quote(d.selector.selectorText)), ','))
+		_, err = w.Write([]byte(strconv.Quote(delta.info.selector.selectorText)))
 		if err != nil {
 			return
 		}
 
-		err = writeListOrDelta(w, d.delta)
+		err = writeList(w, delta.info.deltas)
 		if err != nil {
 			return
 		}
 
 	case selectorAllType:
-		d := delta.delta.(*deltaSelectorAll)
 		_, err = w.Write(append(selectorAllTypeString, ','))
 		if err != nil {
 			return
 		}
 
-		_, err = w.Write(append([]byte(strconv.Quote(d.selector.selectorText)), ','))
+		_, err = w.Write([]byte(strconv.Quote(delta.info.selector.selectorText)))
 		if err != nil {
 			return
 		}
 
-		err = writeListOrDelta(w, d.delta)
+		err = writeList(w, delta.info.deltas)
 		if err != nil {
 			return
 		}
 
 	case parentType:
-		_, err = w.Write(append(parentTypeString, ','))
+		_, err = w.Write(parentTypeString)
 		if err != nil {
 			return
 		}
 
-		err = writeListOrDelta(w, delta.delta.(*deltaParent).delta)
+		err = writeList(w, delta.info.deltas)
 		if err != nil {
 			return
 		}
 
 	case firstChildType:
-		_, err = w.Write(append(firstChildTypeString, ','))
+		_, err = w.Write(firstChildTypeString)
 		if err != nil {
 			return
 		}
 
-		err = writeListOrDelta(w, delta.delta.(*deltaFirstChild).delta)
+		err = writeList(w, delta.info.deltas)
 		if err != nil {
 			return
 		}
 
 	case lastChildType:
-		_, err = w.Write(append(lastChildTypeString, ','))
+		_, err = w.Write(lastChildTypeString)
 		if err != nil {
 			return
 		}
 
-		err = writeListOrDelta(w, delta.delta.(*deltaLastChild).delta)
+		err = writeList(w, delta.info.deltas)
 		if err != nil {
 			return
 		}
 
 	case prevSiblingType:
-		_, err = w.Write(append(prevSiblingTypeString, ','))
+		_, err = w.Write(prevSiblingTypeString)
 		if err != nil {
 			return
 		}
 
-		err = writeListOrDelta(w, delta.delta.(*deltaPrevSibling).delta)
+		err = writeList(w, delta.info.deltas)
 		if err != nil {
 			return
 		}
 
 	case nextSiblingType:
-		_, err = w.Write(append(nextSiblingTypeString, ','))
+		_, err = w.Write(nextSiblingTypeString)
 		if err != nil {
 			return
 		}
 
-		err = writeListOrDelta(w, delta.delta.(*deltaNextSibling).delta)
+		err = writeList(w, delta.info.deltas)
 		if err != nil {
 			return
 		}
@@ -187,7 +172,7 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 		}
 
 		var result []byte
-		result, err = ioutil.ReadAll(delta.delta.(*deltaHTML).factory.HTML())
+		result, err = ioutil.ReadAll(delta.info.factory.HTML())
 		if err != nil {
 			return
 		}
@@ -204,7 +189,7 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 		}
 
 		var result []byte
-		result, err = ioutil.ReadAll(delta.delta.(*deltaReplace).factory.HTML())
+		result, err = ioutil.ReadAll(delta.info.factory.HTML())
 		if err != nil {
 			return
 		}
@@ -221,7 +206,7 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 		}
 
 		var result []byte
-		result, err = ioutil.ReadAll(delta.delta.(*deltaAppend).factory.HTML())
+		result, err = ioutil.ReadAll(delta.info.factory.HTML())
 		if err != nil {
 			return
 		}
@@ -238,7 +223,7 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 		}
 
 		var result []byte
-		result, err = ioutil.ReadAll(delta.delta.(*deltaPrepend).factory.HTML())
+		result, err = ioutil.ReadAll(delta.info.factory.HTML())
 		if err != nil {
 			return
 		}
@@ -255,7 +240,7 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 		}
 
 		var result []byte
-		result, err = ioutil.ReadAll(delta.delta.(*deltaInsertAfter).factory.HTML())
+		result, err = ioutil.ReadAll(delta.info.factory.HTML())
 		if err != nil {
 			return
 		}
@@ -272,7 +257,7 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 		}
 
 		var result []byte
-		result, err = ioutil.ReadAll(delta.delta.(*deltaInsertBefore).factory.HTML())
+		result, err = ioutil.ReadAll(delta.info.factory.HTML())
 		if err != nil {
 			return
 		}
@@ -288,7 +273,7 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 			return
 		}
 
-		_, err = w.Write([]byte(strMapToJSON(delta.delta.(*deltaAddAttr).attr)))
+		_, err = w.Write([]byte(strMapToJSON(delta.info.strMap)))
 		if err != nil {
 			return
 		}
@@ -299,7 +284,7 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 			return
 		}
 
-		_, err = w.Write([]byte(strMapToJSON(delta.delta.(*deltaSetAttr).attr)))
+		_, err = w.Write([]byte(strMapToJSON(delta.info.strMap)))
 		if err != nil {
 			return
 		}
@@ -310,7 +295,7 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 			return
 		}
 
-		_, err = w.Write([]byte(strSliceToCSV(delta.delta.(*deltaRmAttr).attr)))
+		_, err = w.Write([]byte(strSliceToCSV(delta.info.strList)))
 		if err != nil {
 			return
 		}
@@ -321,7 +306,7 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 			return
 		}
 
-		_, err = w.Write([]byte(strMapToJSON(delta.delta.(*deltaAddStyles).styles)))
+		_, err = w.Write([]byte(strMapToJSON(delta.info.strMap)))
 		if err != nil {
 			return
 		}
@@ -332,7 +317,7 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 			return
 		}
 
-		_, err = w.Write([]byte(strSliceToCSV(delta.delta.(*deltaRmStyles).styles)))
+		_, err = w.Write([]byte(strSliceToCSV(delta.info.strList)))
 		if err != nil {
 			return
 		}
@@ -343,7 +328,7 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 			return
 		}
 
-		_, err = w.Write([]byte(strconv.Quote(delta.delta.(*deltaAddClass).class)))
+		_, err = w.Write([]byte(strconv.Quote(delta.info.class)))
 		if err != nil {
 			return
 		}
@@ -354,7 +339,7 @@ func writeDeltaJSON(w io.Writer, delta Delta) (err error) {
 			return
 		}
 
-		_, err = w.Write([]byte(strconv.Quote(delta.delta.(*deltaRmClass).class)))
+		_, err = w.Write([]byte(strconv.Quote(delta.info.class)))
 		if err != nil {
 			return
 		}
