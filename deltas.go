@@ -6,8 +6,8 @@ type Delta struct {
 	info   *deltaInfo
 }
 
-// Action encapsulates a delta
-type Action interface {
+// Command encapsulates a delta
+type Command interface {
 	Delta() Delta
 }
 
@@ -25,7 +25,7 @@ type deltaInfo struct {
 	class    string
 }
 
-// IsNil checks if the given action has nil effect
-func IsNil(action Action) bool {
-	return action == nil || action.Delta().typeID == 0
+// IsNil checks if the given command has nil effect
+func IsNil(command Command) bool {
+	return command == nil || command.Delta().typeID == 0
 }

@@ -2,13 +2,13 @@ package wit
 
 import "sync"
 
-type lazyAction struct {
-	f     func() Action
+type lazyCommand struct {
+	f     func() Command
 	mux   sync.Mutex
 	delta *Delta
 }
 
-func (l *lazyAction) Delta() Delta {
+func (l *lazyCommand) Delta() Delta {
 	l.mux.Lock()
 	defer l.mux.Unlock()
 
@@ -21,22 +21,22 @@ func (l *lazyAction) Delta() Delta {
 	return delta
 }
 
-// Lazy builds an action which will be evaluated on demand
-func Lazy(f func() Action) Action {
-	return &lazyAction{f: f}
+// Lazy builds an command which will be evaluated on demand
+func Lazy(f func() Command) Command {
+	return &lazyCommand{f: f}
 }
 
 // Async spanws the provided function in a new goroutine and
-// returns an action which resolves to the returned one
-func Async(f func() Action) Action {
+// returns an command which resolves to the returned one
+func Async(f func() Command) Command {
 	l := Lazy(f)
 	go l.Delta()
 	return l
 }
 
-// Memo returns an action which will be memoized
-func Memo(a Action) Action {
-	return Lazy(func() Action {
+// Memo returns an command which will be memoized
+func Memo(a Command) Command {
+	return Lazy(func() Command {
 		return a
 	})
 }

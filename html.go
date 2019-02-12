@@ -21,14 +21,14 @@ type htmlRenderer struct {
 }
 
 // NewHTMLRenderer returns a new renderer which will render HTML
-func NewHTMLRenderer(action Action) Renderer {
+func NewHTMLRenderer(command Command) Renderer {
 	nodes := clone([]*html.Node{baseDocument})
 	c := &htmlContext{
 		root: nodes[0],
 	}
 
-	if !IsNil(action) {
-		applyDelta(c, nodes, action.Delta())
+	if !IsNil(command) {
+		applyDelta(c, nodes, command.Delta())
 	}
 
 	return &htmlRenderer{c.root}

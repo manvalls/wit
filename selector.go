@@ -22,9 +22,9 @@ var Head = S("head")
 // Body matches the body element
 var Body = S("body")
 
-// One applies the given actions to the first matching element
-func (s Selector) One(actions ...Action) Action {
-	deltas := extractDeltas(actions)
+// One applies the given commands to the first matching element
+func (s Selector) One(commands ...Command) Command {
+	deltas := extractDeltas(commands)
 	if len(deltas) == 0 {
 		return Nil
 	}
@@ -32,9 +32,9 @@ func (s Selector) One(actions ...Action) Action {
 	return Delta{selectorType, &deltaInfo{selector: s, deltas: deltas}}
 }
 
-// All applies the given actions to all matching elements
-func (s Selector) All(actions ...Action) Action {
-	deltas := extractDeltas(actions)
+// All applies the given commands to all matching elements
+func (s Selector) All(commands ...Command) Command {
+	deltas := extractDeltas(commands)
 	if len(deltas) == 0 {
 		return Nil
 	}
