@@ -2,6 +2,7 @@ package wit
 
 import (
 	"io"
+	"sync"
 
 	"golang.org/x/net/html"
 )
@@ -28,17 +29,38 @@ func extractDeltas(commands []Command) []Delta {
 }
 
 // List groups a list of commands together
-func List(commands ...Command) Command {
-	filteredDeltas := extractDeltas(commands)
+func List(commands ...Command) *ListCommand {
+	return &ListCommand{commands: commands}
+}
+
+// ListCommand holds a list of commands
+type ListCommand struct {
+	mutex    sync.Mutex
+	commands []Command
+}
+
+// Delta computes the delta based on the list of stored commands
+func (l *ListCommand) Delta() Delta {
+	l.mutex.Lock()
+	defer l.mutex.Unlock()
+
+	filteredDeltas := extractDeltas(l.commands)
 
 	switch len(filteredDeltas) {
 	case 0:
-		return Nil
+		return Delta{}
 	case 1:
 		return filteredDeltas[0]
 	default:
 		return Delta{sliceType, &deltaInfo{deltas: filteredDeltas}}
 	}
+}
+
+// Add adds a command to this list
+func (l *ListCommand) Add(c Command) {
+	l.mutex.Lock()
+	defer l.mutex.Unlock()
+	l.commands = append(l.commands, c)
 }
 
 // Root applies given commands to the root of the document
