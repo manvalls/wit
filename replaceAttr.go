@@ -7,16 +7,6 @@ type ReplaceAttr struct {
 	Attributes map[string]string
 }
 
-// Empty returns whether or not this delta is empty
-func (r ReplaceAttr) Empty() bool {
-	return false
-}
-
-// Flatten returns a new delta with redundant information removed
-func (r ReplaceAttr) Flatten() Delta {
-	return r
-}
-
 // Apply applies the delta to the provided elements
 func (r ReplaceAttr) Apply(root *html.Node, nodes []*html.Node) {
 	attr := r.Attributes

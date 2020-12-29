@@ -11,16 +11,6 @@ type AddClasses struct {
 	Classes string
 }
 
-// Empty returns whether or not this delta is empty
-func (a AddClasses) Empty() bool {
-	return false
-}
-
-// Flatten returns a new delta with redundant information removed
-func (a AddClasses) Flatten() Delta {
-	return a
-}
-
 // Apply applies the delta to the provided elements
 func (a AddClasses) Apply(root *html.Node, nodes []*html.Node) {
 	class := a.Classes

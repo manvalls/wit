@@ -7,11 +7,6 @@ type NextSibling struct {
 	Delta
 }
 
-// Flatten returns a new delta with redundant information removed
-func (ns NextSibling) Flatten() Delta {
-	return NextSibling{ns.Delta.Flatten()}
-}
-
 // Apply applies the delta to the provided elements
 func (ns NextSibling) Apply(root *html.Node, nodes []*html.Node) {
 	childNodes := make([]*html.Node, 0, len(nodes))

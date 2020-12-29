@@ -7,11 +7,6 @@ type FirstChild struct {
 	Delta
 }
 
-// Flatten returns a new delta with redundant information removed
-func (fc FirstChild) Flatten() Delta {
-	return FirstChild{fc.Delta.Flatten()}
-}
-
 // Apply applies the delta to the provided elements
 func (fc FirstChild) Apply(root *html.Node, nodes []*html.Node) {
 	childNodes := make([]*html.Node, 0, len(nodes))

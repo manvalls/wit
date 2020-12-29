@@ -5,16 +5,6 @@ import "golang.org/x/net/html"
 // Clear empties matching elements
 type Clear struct{}
 
-// Empty returns whether or not this delta is empty
-func (c Clear) Empty() bool {
-	return false
-}
-
-// Flatten returns a new delta with redundant information removed
-func (c Clear) Flatten() Delta {
-	return c
-}
-
 // Apply applies the delta to the provided elements
 func (c Clear) Apply(root *html.Node, nodes []*html.Node) {
 	for _, node := range nodes {

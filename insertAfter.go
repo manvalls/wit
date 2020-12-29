@@ -11,16 +11,6 @@ type InsertAfter struct {
 	HTMLSource
 }
 
-// Empty returns whether or not this delta is empty
-func (i InsertAfter) Empty() bool {
-	return false
-}
-
-// Flatten returns a new delta with redundant information removed
-func (i InsertAfter) Flatten() Delta {
-	return i
-}
-
 // Apply applies the delta to the provided elements
 func (i InsertAfter) Apply(root *html.Node, nodes []*html.Node) {
 	for _, node := range nodes {

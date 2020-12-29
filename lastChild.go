@@ -7,11 +7,6 @@ type LastChild struct {
 	Delta
 }
 
-// Flatten returns a new delta with redundant information removed
-func (lc LastChild) Flatten() Delta {
-	return LastChild{lc.Delta.Flatten()}
-}
-
 // Apply applies the delta to the provided elements
 func (lc LastChild) Apply(root *html.Node, nodes []*html.Node) {
 	childNodes := make([]*html.Node, 0, len(nodes))

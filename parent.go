@@ -7,11 +7,6 @@ type Parent struct {
 	Delta
 }
 
-// Flatten returns a new delta with redundant information removed
-func (p Parent) Flatten() Delta {
-	return Parent{p.Delta.Flatten()}
-}
-
 // Apply applies the delta to the provided elements
 func (p Parent) Apply(root *html.Node, nodes []*html.Node) {
 	childNodes := make([]*html.Node, 0, len(nodes))

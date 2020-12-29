@@ -11,34 +11,6 @@ type List struct {
 	Deltas []Delta
 }
 
-// Empty returns whether or not this delta is empty
-func (l List) Empty() bool {
-	return len(l.Deltas) == 0
-}
-
-// Flatten returns a new delta with redundant information removed
-func (l List) Flatten() Delta {
-	deltas := make([]Delta, 0, len(l.Deltas))
-
-	for _, delta := range l.Deltas {
-		delta = delta.Flatten()
-
-		if sublist, ok := delta.(List); ok {
-			for _, subdelta := range sublist.Deltas {
-				deltas = append(deltas, subdelta)
-			}
-		} else if !delta.Empty() {
-			deltas = append(deltas, delta)
-		}
-	}
-
-	if len(deltas) == 1 {
-		return deltas[0]
-	}
-
-	return List{deltas}
-}
-
 func unmarshalJSONList(input []interface{}, offset int) List {
 	deltas := make([]Delta, 0, len(input)-offset)
 

@@ -11,16 +11,6 @@ type Prepend struct {
 	HTMLSource
 }
 
-// Empty returns whether or not this delta is empty
-func (p Prepend) Empty() bool {
-	return false
-}
-
-// Flatten returns a new delta with redundant information removed
-func (p Prepend) Flatten() Delta {
-	return p
-}
-
 // Apply applies the delta to the provided elements
 func (p Prepend) Apply(root *html.Node, nodes []*html.Node) {
 	for _, node := range nodes {

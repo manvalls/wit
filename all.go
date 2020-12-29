@@ -13,11 +13,6 @@ type All struct {
 	Delta
 }
 
-// Flatten returns a new delta with redundant information removed
-func (a All) Flatten() Delta {
-	return All{a.Selector, a.Delta.Flatten()}
-}
-
 // Apply applies the delta to the provided elements
 func (a All) Apply(root *html.Node, nodes []*html.Node) {
 	childNodes := make([]*html.Node, 0, len(nodes))

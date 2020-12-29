@@ -11,16 +11,6 @@ type HTML struct {
 	HTMLSource
 }
 
-// Empty returns whether or not this delta is empty
-func (h HTML) Empty() bool {
-	return false
-}
-
-// Flatten returns a new delta with redundant information removed
-func (h HTML) Flatten() Delta {
-	return h
-}
-
 // Apply applies the delta to the provided elements
 func (h HTML) Apply(root *html.Node, nodes []*html.Node) {
 	for _, node := range nodes {

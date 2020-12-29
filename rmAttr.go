@@ -7,16 +7,6 @@ type RmAttr struct {
 	Attributes []string
 }
 
-// Empty returns whether or not this delta is empty
-func (r RmAttr) Empty() bool {
-	return false
-}
-
-// Flatten returns a new delta with redundant information removed
-func (r RmAttr) Flatten() Delta {
-	return r
-}
-
 // Apply applies the delta to the provided elements
 func (r RmAttr) Apply(root *html.Node, nodes []*html.Node) {
 	attr := r.Attributes

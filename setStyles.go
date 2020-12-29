@@ -7,16 +7,6 @@ type SetStyles struct {
 	Styles map[string]string
 }
 
-// Empty returns whether or not this delta is empty
-func (s SetStyles) Empty() bool {
-	return false
-}
-
-// Flatten returns a new delta with redundant information removed
-func (s SetStyles) Flatten() Delta {
-	return s
-}
-
 // Apply applies the delta to the provided elements
 func (s SetStyles) Apply(root *html.Node, nodes []*html.Node) {
 	styles := s.Styles

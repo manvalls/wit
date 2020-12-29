@@ -11,16 +11,6 @@ type InsertBefore struct {
 	HTMLSource
 }
 
-// Empty returns whether or not this delta is empty
-func (i InsertBefore) Empty() bool {
-	return false
-}
-
-// Flatten returns a new delta with redundant information removed
-func (i InsertBefore) Flatten() Delta {
-	return i
-}
-
 // Apply applies the delta to the provided elements
 func (i InsertBefore) Apply(root *html.Node, nodes []*html.Node) {
 	for _, node := range nodes {

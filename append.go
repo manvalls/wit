@@ -11,16 +11,6 @@ type Append struct {
 	HTMLSource
 }
 
-// Empty returns whether or not this delta is empty
-func (a Append) Empty() bool {
-	return false
-}
-
-// Flatten returns a new delta with redundant information removed
-func (a Append) Flatten() Delta {
-	return a
-}
-
 // Apply applies the delta to the provided elements
 func (a Append) Apply(root *html.Node, nodes []*html.Node) {
 	for _, node := range nodes {

@@ -7,11 +7,6 @@ type PrevSibling struct {
 	Delta
 }
 
-// Flatten returns a new delta with redundant information removed
-func (ps PrevSibling) Flatten() Delta {
-	return PrevSibling{ps.Delta.Flatten()}
-}
-
 // Apply applies the delta to the provided elements
 func (ps PrevSibling) Apply(root *html.Node, nodes []*html.Node) {
 	childNodes := make([]*html.Node, 0, len(nodes))

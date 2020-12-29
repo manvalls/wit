@@ -11,16 +11,6 @@ type RmClasses struct {
 	Classes string
 }
 
-// Empty returns whether or not this delta is empty
-func (r RmClasses) Empty() bool {
-	return false
-}
-
-// Flatten returns a new delta with redundant information removed
-func (r RmClasses) Flatten() Delta {
-	return r
-}
-
 // Apply applies the delta to the provided elements
 func (r RmClasses) Apply(root *html.Node, nodes []*html.Node) {
 	class := r.Classes
