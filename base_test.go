@@ -69,7 +69,7 @@ func TestApply(t *testing.T) {
 	delta.Apply(baseDocument)
 	baseDocument.Render(&b)
 
-	if string(b.Bytes()) != expectedHTML {
-		t.Error("Expected ", expectedHTML, ", got", string(b.Bytes()))
+	if b.String() != expectedHTML {
+		t.Error("Expected ", expectedHTML, ", got", b.String())
 	}
 }

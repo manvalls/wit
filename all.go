@@ -18,9 +18,7 @@ func (a All) Apply(d Document) {
 	childNodes := make([]*html.Node, 0, len(d.nodes))
 
 	for _, node := range d.nodes {
-		for _, match := range cascadia.QueryAll(node, a.Selector) {
-			childNodes = append(childNodes, match)
-		}
+		childNodes = append(childNodes, cascadia.QueryAll(node, a.Selector)...)
 	}
 
 	d.nodes = childNodes

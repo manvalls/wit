@@ -6,17 +6,6 @@ import (
 	"golang.org/x/net/html"
 )
 
-func clone(nodes []*html.Node) []*html.Node {
-	clones := make([]*html.Node, len(nodes))
-	cache := map[*html.Node]*html.Node{}
-
-	for i, node := range nodes {
-		clones[i] = cloneNode(node, cache)
-	}
-
-	return clones
-}
-
 func cloneNode(node *html.Node, cache map[*html.Node]*html.Node) *html.Node {
 	if node == nil {
 		return nil
