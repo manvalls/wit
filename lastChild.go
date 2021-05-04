@@ -8,10 +8,10 @@ type LastChild struct {
 }
 
 // Apply applies the delta to the provided elements
-func (lc LastChild) Apply(root *html.Node, nodes []*html.Node) {
-	childNodes := make([]*html.Node, 0, len(nodes))
+func (lc LastChild) Apply(d Document) {
+	childNodes := make([]*html.Node, 0, len(d.nodes))
 
-	for _, node := range nodes {
+	for _, node := range d.nodes {
 		m := node.LastChild
 		for m != nil && m.Type != html.ElementNode {
 			m = m.PrevSibling
@@ -22,7 +22,8 @@ func (lc LastChild) Apply(root *html.Node, nodes []*html.Node) {
 		}
 	}
 
-	lc.Delta.Apply(root, childNodes)
+	d.nodes = childNodes
+	lc.Delta.Apply(d)
 }
 
 // MarshalJSON marshals the delta to JSON format

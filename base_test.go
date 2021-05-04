@@ -2,10 +2,7 @@ package wit
 
 import (
 	"bytes"
-	"strings"
 	"testing"
-
-	"golang.org/x/net/html"
 )
 
 var delta = List{[]Delta{
@@ -39,8 +36,8 @@ var delta = List{[]Delta{
 }}
 
 var expectedJSON = `[1,[3,"body",[12,"<div class=\"one\"></div>"],[14,"<div class=\"two\"></div>"],[15,"<h1 foo=bar></h1>"],[3,".two",[16,"<div class=\"three\" style=\"background: black;border: 1px solid\"></div>"],[9,[18,{"foo":"bar"}]],[8,[19,{"number":"one"}]],[5,[23,"foo bar"]],[2,[3,"body",[24,"baz foo"],[6,[21,{"color":"black"}]],[7,[22,"background"]]]]],[4,"div",[17,"<hr>"]],[3,"h1",[19,{"bar":"foo"}],[18,{"bar2":"foo2"}],[20,"bar2"],[18,{"bar3":"foo3"}]]]]`
-var baseDocument, _ = html.Parse(strings.NewReader("<!DOCTYPE html><html><head></head><body class=\"foo baz\"></body>"))
-var expectedHTML = `<!DOCTYPE html><html><head></head><body class="bar" style="color: black;"><h1 bar="foo" bar3="foo3"></h1><hr/><div number="one"></div><hr/><div class="two"></div><hr/><div class="three" style="border: 1px solid;" foo="bar"></div></body></html>`
+var baseDocument = NewDocument()
+var expectedHTML = `<!DOCTYPE html><html><head></head><body class="bar"><h1 bar="foo" bar3="foo3"></h1><hr/><div number="one"></div><hr/><div class="two"></div><hr/><div class="three" style="border: 1px solid;" foo="bar"></div></body></html>`
 
 func TestJSONMarshal(t *testing.T) {
 	result, _ := delta.MarshalJSON()
@@ -63,8 +60,14 @@ func TestJSONUnmarshal(t *testing.T) {
 
 func TestApply(t *testing.T) {
 	var b bytes.Buffer
-	delta.Apply(baseDocument, []*html.Node{baseDocument})
-	html.Render(&b, baseDocument)
+
+	First{
+		Body,
+		AddClasses{"foo baz"},
+	}.Apply(baseDocument)
+
+	delta.Apply(baseDocument)
+	baseDocument.Render(&b)
 
 	if string(b.Bytes()) != expectedHTML {
 		t.Error("Expected ", expectedHTML, ", got", string(b.Bytes()))

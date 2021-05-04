@@ -12,11 +12,11 @@ type RmClasses struct {
 }
 
 // Apply applies the delta to the provided elements
-func (r RmClasses) Apply(root *html.Node, nodes []*html.Node) {
+func (r RmClasses) Apply(d Document) {
 	class := r.Classes
 	classesToRm := parseClass(class)
 
-	for _, node := range nodes {
+	for _, node := range d.nodes {
 		if node.Type != html.ElementNode {
 			continue
 		}

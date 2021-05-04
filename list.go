@@ -2,8 +2,6 @@ package wit
 
 import (
 	"encoding/json"
-
-	"golang.org/x/net/html"
 )
 
 // List holds a list of deltas
@@ -183,9 +181,9 @@ func (l *List) UnmarshalJSON(payload []byte) error {
 }
 
 // Apply applies the delta to the provided elements
-func (l List) Apply(root *html.Node, nodes []*html.Node) {
+func (l List) Apply(d Document) {
 	for _, delta := range l.Deltas {
-		delta.Apply(root, nodes)
+		delta.Apply(d)
 	}
 }
 

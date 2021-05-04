@@ -12,8 +12,8 @@ type InsertBefore struct {
 }
 
 // Apply applies the delta to the provided elements
-func (i InsertBefore) Apply(root *html.Node, nodes []*html.Node) {
-	for _, node := range nodes {
+func (i InsertBefore) Apply(d Document) {
+	for _, node := range d.nodes {
 		if node.Type != html.ElementNode || node.Parent == nil {
 			continue
 		}

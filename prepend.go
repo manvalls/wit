@@ -12,8 +12,8 @@ type Prepend struct {
 }
 
 // Apply applies the delta to the provided elements
-func (p Prepend) Apply(root *html.Node, nodes []*html.Node) {
-	for _, node := range nodes {
+func (p Prepend) Apply(d Document) {
+	for _, node := range d.nodes {
 		if node.Type != html.ElementNode {
 			continue
 		}
@@ -29,7 +29,6 @@ func (p Prepend) Apply(root *html.Node, nodes []*html.Node) {
 				node.AppendChild(child)
 			}
 		}
-
 	}
 }
 

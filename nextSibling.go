@@ -8,10 +8,10 @@ type NextSibling struct {
 }
 
 // Apply applies the delta to the provided elements
-func (ns NextSibling) Apply(root *html.Node, nodes []*html.Node) {
-	childNodes := make([]*html.Node, 0, len(nodes))
+func (ns NextSibling) Apply(d Document) {
+	childNodes := make([]*html.Node, 0, len(d.nodes))
 
-	for _, node := range nodes {
+	for _, node := range d.nodes {
 		m := node.NextSibling
 		for m != nil && m.Type != html.ElementNode {
 			m = m.NextSibling
@@ -22,7 +22,8 @@ func (ns NextSibling) Apply(root *html.Node, nodes []*html.Node) {
 		}
 	}
 
-	ns.Delta.Apply(root, childNodes)
+	d.nodes = childNodes
+	ns.Delta.Apply(d)
 }
 
 // MarshalJSON marshals the delta to JSON format

@@ -12,11 +12,11 @@ type AddClasses struct {
 }
 
 // Apply applies the delta to the provided elements
-func (a AddClasses) Apply(root *html.Node, nodes []*html.Node) {
+func (a AddClasses) Apply(d Document) {
 	class := a.Classes
 	classesToAdd := parseClass(class)
 
-	for _, node := range nodes {
+	for _, node := range d.nodes {
 		if node.Type != html.ElementNode {
 			continue
 		}

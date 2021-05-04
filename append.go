@@ -12,8 +12,8 @@ type Append struct {
 }
 
 // Apply applies the delta to the provided elements
-func (a Append) Apply(root *html.Node, nodes []*html.Node) {
-	for _, node := range nodes {
+func (a Append) Apply(d Document) {
+	for _, node := range d.nodes {
 		if node.Type != html.ElementNode {
 			continue
 		}

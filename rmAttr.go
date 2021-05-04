@@ -8,14 +8,14 @@ type RmAttr struct {
 }
 
 // Apply applies the delta to the provided elements
-func (r RmAttr) Apply(root *html.Node, nodes []*html.Node) {
+func (r RmAttr) Apply(d Document) {
 	attr := r.Attributes
 	attrMap := map[string]bool{}
 	for _, key := range attr {
 		attrMap[key] = true
 	}
 
-	for _, node := range nodes {
+	for _, node := range d.nodes {
 		if node.Type != html.ElementNode {
 			continue
 		}

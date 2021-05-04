@@ -8,9 +8,9 @@ type ReplaceAttr struct {
 }
 
 // Apply applies the delta to the provided elements
-func (r ReplaceAttr) Apply(root *html.Node, nodes []*html.Node) {
+func (r ReplaceAttr) Apply(d Document) {
 	attr := r.Attributes
-	for _, node := range nodes {
+	for _, node := range d.nodes {
 		if node.Type != html.ElementNode {
 			continue
 		}

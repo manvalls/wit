@@ -2,8 +2,6 @@ package wit
 
 import (
 	"strconv"
-
-	"golang.org/x/net/html"
 )
 
 // HTML sets the inner HTML of matching elements
@@ -12,8 +10,8 @@ type HTML struct {
 }
 
 // Apply applies the delta to the provided elements
-func (h HTML) Apply(root *html.Node, nodes []*html.Node) {
-	for _, node := range nodes {
+func (h HTML) Apply(d Document) {
+	for _, node := range d.nodes {
 		for node.FirstChild != nil {
 			node.RemoveChild(node.FirstChild)
 		}

@@ -1,6 +1,8 @@
 package wit
 
-import "golang.org/x/net/html"
+import (
+	"golang.org/x/net/html"
+)
 
 // SetStyles sets provided attributes to provided values
 type SetStyles struct {
@@ -8,10 +10,10 @@ type SetStyles struct {
 }
 
 // Apply applies the delta to the provided elements
-func (s SetStyles) Apply(root *html.Node, nodes []*html.Node) {
+func (s SetStyles) Apply(d Document) {
 	styles := s.Styles
 
-	for _, node := range nodes {
+	for _, node := range d.nodes {
 		if node.Type != html.ElementNode {
 			continue
 		}

@@ -8,17 +8,18 @@ type Parent struct {
 }
 
 // Apply applies the delta to the provided elements
-func (p Parent) Apply(root *html.Node, nodes []*html.Node) {
-	childNodes := make([]*html.Node, 0, len(nodes))
+func (p Parent) Apply(d Document) {
+	childNodes := make([]*html.Node, 0, len(d.nodes))
 
-	for _, node := range nodes {
+	for _, node := range d.nodes {
 		m := node.Parent
 		if m != nil {
 			childNodes = append(childNodes, m)
 		}
 	}
 
-	p.Delta.Apply(root, childNodes)
+	d.nodes = childNodes
+	p.Delta.Apply(d)
 }
 
 // MarshalJSON marshals the delta to JSON format

@@ -8,8 +8,9 @@ type Root struct {
 }
 
 // Apply applies the delta to the provided elements
-func (r Root) Apply(root *html.Node, nodes []*html.Node) {
-	r.Delta.Apply(root, []*html.Node{root})
+func (r Root) Apply(d Document) {
+	d.nodes = []*html.Node{d.root}
+	r.Delta.Apply(d)
 }
 
 // MarshalJSON marshals the delta to JSON format

@@ -1,6 +1,8 @@
 package wit
 
-import "golang.org/x/net/html"
+import (
+	"golang.org/x/net/html"
+)
 
 // FirstChild applies given delta to the first child element
 type FirstChild struct {
@@ -8,10 +10,10 @@ type FirstChild struct {
 }
 
 // Apply applies the delta to the provided elements
-func (fc FirstChild) Apply(root *html.Node, nodes []*html.Node) {
-	childNodes := make([]*html.Node, 0, len(nodes))
+func (fc FirstChild) Apply(d Document) {
+	childNodes := make([]*html.Node, 0, len(d.nodes))
 
-	for _, node := range nodes {
+	for _, node := range d.nodes {
 		m := node.FirstChild
 		for m != nil && m.Type != html.ElementNode {
 			m = m.NextSibling
@@ -22,7 +24,8 @@ func (fc FirstChild) Apply(root *html.Node, nodes []*html.Node) {
 		}
 	}
 
-	fc.Delta.Apply(root, nodes)
+	d.nodes = childNodes
+	fc.Delta.Apply(d)
 }
 
 // MarshalJSON marshals the delta to JSON format

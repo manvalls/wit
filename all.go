@@ -14,16 +14,17 @@ type All struct {
 }
 
 // Apply applies the delta to the provided elements
-func (a All) Apply(root *html.Node, nodes []*html.Node) {
-	childNodes := make([]*html.Node, 0, len(nodes))
+func (a All) Apply(d Document) {
+	childNodes := make([]*html.Node, 0, len(d.nodes))
 
-	for _, node := range nodes {
+	for _, node := range d.nodes {
 		for _, match := range cascadia.QueryAll(node, a.Selector) {
 			childNodes = append(childNodes, match)
 		}
 	}
 
-	a.Delta.Apply(root, childNodes)
+	d.nodes = childNodes
+	a.Delta.Apply(d)
 }
 
 // MarshalJSON marshals the delta to JSON format

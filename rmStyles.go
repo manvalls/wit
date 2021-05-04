@@ -8,10 +8,10 @@ type RmStyles struct {
 }
 
 // Apply applies the delta to the provided elements
-func (r RmStyles) Apply(root *html.Node, nodes []*html.Node) {
+func (r RmStyles) Apply(d Document) {
 	styles := r.Styles
 
-	for _, node := range nodes {
+	for _, node := range d.nodes {
 		if node.Type != html.ElementNode {
 			continue
 		}

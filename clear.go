@@ -6,8 +6,8 @@ import "golang.org/x/net/html"
 type Clear struct{}
 
 // Apply applies the delta to the provided elements
-func (c Clear) Apply(root *html.Node, nodes []*html.Node) {
-	for _, node := range nodes {
+func (c Clear) Apply(d Document) {
+	for _, node := range d.nodes {
 		if node.Type == html.ElementNode {
 			for node.FirstChild != nil {
 				node.RemoveChild(node.FirstChild)

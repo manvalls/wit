@@ -10,9 +10,9 @@ type SetAttr struct {
 }
 
 // Apply applies the delta to the provided elements
-func (s SetAttr) Apply(root *html.Node, nodes []*html.Node) {
+func (s SetAttr) Apply(d Document) {
 	attr := s.Attributes
-	for _, node := range nodes {
+	for _, node := range d.nodes {
 		if node.Type != html.ElementNode {
 			continue
 		}
